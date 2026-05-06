@@ -1,0 +1,88 @@
+task_id: A03
+fixture: null
+name: Extract named fields from a passage
+level: A0
+category: extraction
+subcategory: structured_field_extraction
+goal: Extract specific named fields from an unstructured text passage.
+difficulty_rationale: Pure NLU — tests whether the model can locate and extract explicit values from prose.
+tools_available: []
+max_steps: 1
+allowed_repair_turns: 0
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: vendor_onboarding
+  user_intent: extract_vendor_details
+  passage: >
+    Vendor: Pinnacle Systems Inc. Contact person is Raj Muthukrishnan
+    (raj.m@pinnaclesys.io). They are based in Toronto, Canada and have
+    been operational since 2017. Their primary offering is industrial
+    IoT sensor arrays. Annual revenue reported at $4.2M USD.
+  requested_fields:
+    - vendor_name
+    - contact_email
+    - location
+    - year_established
+gold_state:
+  target_fields:
+    vendor_name: Pinnacle Systems Inc.
+    contact_email: raj.m@pinnaclesys.io
+    location: Toronto, Canada
+    year_established: 2017
+pass_conditions:
+  - all_four_fields_extracted
+  - all_field_values_correct
+  - within_step_budget
+soft_metrics:
+  - response_length
+  - total_latency_ms
+  - field_completeness
+primary_failure_labels:
+  - missing_field
+  - wrong_field_value
+  - hallucinated_field_value
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - field_order_variation
+  - distractor_fields_in_passage
+  - passage_format_variation
+  - mild_typo
+
+oracle_evaluator:
+  final_answer_check:
+    type: structured_match
+    expected_fields:
+      vendor_name: Pinnacle Systems Inc.
+      contact_email: raj.m@pinnaclesys.io
+      location: Toronto, Canada
+      year_established: "2017"
+  trajectory_check:
+    require_step_budget: true
+
+trace_requirements:
+  must_call_tools: []
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: hallucinated_facts_not_in_passage
+
+notes_for_evaluator: >
+  All four fields must be present and correct. Accept minor formatting
+  differences (e.g., "2017" vs 2017, "Toronto, CA" vs "Toronto, Canada").
+  Hallucinated values not in the passage should fail.
+example_prompt: >
+  Extract the following fields from the text below: vendor_name, contact_email,
+  location, year_established.
+
+  "Vendor: Pinnacle Systems Inc. Contact person is Raj Muthukrishnan
+  (raj.m@pinnaclesys.io). They are based in Toronto, Canada and have been
+  operational since 2017. Their primary offering is industrial IoT sensor
+  arrays. Annual revenue reported at $4.2M USD."
+expected_agent_behavior:
+  - read the passage
+  - locate each requested field
+  - return all four values

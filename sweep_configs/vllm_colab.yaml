@@ -1,0 +1,45 @@
+# vLLM on Colab Pro — same tasks, GPU-backed serving
+#
+# IMPORTANT: vLLM serves ONE model per server. For multi-model sweeps, you
+# need to restart the server for each model. This config lists the models
+# in a single sweep; run them one at a time via --models filter, or run
+# each in its own Colab session.
+#
+# Usage on Colab after `vllm serve <model> --port 8000`:
+#   python runs/run_sweep.py --config sweep_configs/vllm_colab.yaml \
+#     --models Qwen/Qwen2.5-7B-Instruct-AWQ
+#
+# Set auto_pull/auto_stop to false — vLLM manages its own lifecycle.
+
+sweep_name: vllm_colab
+backend: vllm
+base_url: http://localhost:8000/v1
+results_dir: results
+max_output_tokens: 1024
+auto_pull: false
+auto_stop: false
+compat_out: results/vllm_compatibility.yaml
+
+models:
+  - name: Qwen/Qwen2.5-7B-Instruct-AWQ
+    params_b: 7.0
+    tier: 7b9b
+    notes: AWQ quantized for T4/L4 Colab memory
+  - name: ibm-granite/granite-3.1-8b-instruct
+    params_b: 8.0
+    tier: 7b9b
+  - name: Qwen/Qwen2.5-14B-Instruct-AWQ
+    params_b: 14.0
+    tier: 12b14b
+  - name: meta-llama/Llama-3.1-8B-Instruct
+    params_b: 8.0
+    tier: 7b9b
+    notes: vLLM parser bug (array stringification) — see doc/gaps.md G-014
+  - name: microsoft/Phi-4-mini-instruct
+    params_b: 3.8
+    tier: 3b4b
+    notes: needs --tool-call-parser phi4_mini_json on the server
+
+tasks: all
+variants: [v0]
+runs_per_combo: 1

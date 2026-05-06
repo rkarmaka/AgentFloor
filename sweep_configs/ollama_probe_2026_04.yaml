@@ -1,0 +1,80 @@
+# Cross-family Ollama tool-calling probe — 2026-04-14
+# Goal: discover which recent Ollama-hosted SLMs emit native tool_calls.
+# Run with:  python runs/run_sweep.py --config sweep_configs/ollama_probe_2026_04.yaml --probe-only
+#
+# Families covered (one or more sizes each):
+#   gpt-oss                — 20b (already local)
+#   Qwen 3                 — 0.6 / 1.7 / 8 / 14 / 32b  (4b already local)
+#   Qwen 3.5               — 0.8 / 2 / 4 / 9 / 27b
+#   Google Gemma 4         — e2b / e4b / 26b  (native tools)
+#   Google FunctionGemma   — 270m  (function-calling specialist)
+#   IBM Granite 4          — 350m / 1 / 3b
+#   Mistral Ministral-3    — 3 / 8 / 14b
+#   Mistral Small 3.2      — 24b
+#   Devstral Small 2       — 24b  (coding-agent fine-tune)
+#   NVIDIA Nemotron 3 Nano — 4 / 30b
+#   Community Gemma-tools  — orieg/gemma3-tools (QLoRA fine-tune that emits <tool_call>)
+#
+# Excluded intentionally (too large or already broken):
+#   gpt-oss:120b (65GB), qwen3:235b, qwen3.5:35b/122b, llama4 (67GB+), phi4:14b (no tools),
+#   gemma3:* (no tools — see G-017), deepseek-r1 distills (no tools).
+#
+# Already probed as native on 2026-04-14 — skipped here to save disk & time:
+#   qwen2.5:1.5b/3b/7b/14b/32b, llama3.1:8b, llama3.2:1b/3b,
+#   smollm2:1.7b, mistral:7b, hermes3:8b, llama3-groq-tool-use:8b
+
+sweep_name: ollama_probe_2026_04
+backend: ollama
+base_url: http://localhost:11434/v1
+results_dir: results
+max_output_tokens: 256
+compat_out: results/ollama_compatibility.yaml
+auto_pull: true
+auto_stop: true
+probe_before_run: true
+
+# --- Model list (order = small to large so early bail-outs still yield signal) ---
+models:
+  # ── micro (<1B) ──────────────────────────────────────────────────────────────
+  - {name: functiongemma:270m,  params_b: 0.27, tier: micro, notes: "Google fn-call specialist, Dec 2025"}
+  - {name: granite4:350m,       params_b: 0.35, tier: micro}
+  - {name: qwen3:0.6b,          params_b: 0.6,  tier: micro}
+  - {name: qwen3.5:0.8b,        params_b: 0.8,  tier: micro}
+
+  # ── sub-3B ───────────────────────────────────────────────────────────────────
+  - {name: qwen3:1.7b,          params_b: 1.7,  tier: sub3b}
+  - {name: qwen3.5:2b,          params_b: 2.0,  tier: sub3b}
+  - {name: granite4:1b,         params_b: 1.0,  tier: sub3b}
+
+  # ── 3B–4B ────────────────────────────────────────────────────────────────────
+  - {name: granite4:3b,         params_b: 3.0,  tier: 3b4b}
+  - {name: ministral-3:3b,      params_b: 3.0,  tier: 3b4b}
+  - {name: nemotron-3-nano:4b,  params_b: 4.0,  tier: 3b4b, notes: "NVIDIA agentic-tuned"}
+  - {name: qwen3.5:4b,          params_b: 4.0,  tier: 3b4b}
+
+  # ── 7B–9B ────────────────────────────────────────────────────────────────────
+  - {name: qwen3:8b,            params_b: 8.0,  tier: 7b9b}
+  - {name: qwen3.5:9b,          params_b: 9.0,  tier: 7b9b}
+  - {name: ministral-3:8b,      params_b: 8.0,  tier: 7b9b}
+  - {name: gemma4:e2b,          params_b: 2.0,  tier: 7b9b, notes: "Gemma 4 edge variant"}
+  - {name: gemma4:e4b,          params_b: 4.0,  tier: 7b9b, notes: "Gemma 4 edge variant"}
+
+  # ── 12B–14B ──────────────────────────────────────────────────────────────────
+  - {name: qwen3:14b,           params_b: 14.0, tier: 12b14b}
+  - {name: ministral-3:14b,     params_b: 14.0, tier: 12b14b}
+
+  # ── 20B–27B ──────────────────────────────────────────────────────────────────
+  - {name: gpt-oss:20b,         params_b: 20.0, tier: 20b27b, notes: "OpenAI gpt-oss MXFP4"}
+  - {name: devstral-small-2:24b, params_b: 24.0, tier: 20b27b, notes: "Mistral coding agent"}
+  - {name: mistral-small3.2:24b, params_b: 24.0, tier: 20b27b, notes: "Mistral Small 3.2 — improved fn-call template"}
+  - {name: gemma4:26b,          params_b: 26.0, tier: 20b27b}
+  - {name: qwen3.5:27b,         params_b: 27.0, tier: 20b27b}
+
+  # ── 30B–32B (larger; pull is heavier) ────────────────────────────────────────
+  - {name: nemotron-3-nano:30b, params_b: 30.0, tier: 30b,   notes: "MoE, 1M ctx"}
+  - {name: qwen3:32b,           params_b: 32.0, tier: 30b}
+
+# --- Probe-only run needs no tasks but the schema expects the field. ---
+tasks: [A1]
+variants: [v0]
+runs_per_combo: 1

@@ -1,0 +1,42 @@
+task_id: D1
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Each variant exemplifies one axis from task.variant_axes while preserving
+    the gold answer (target_option_id: SUP-12) and its constraint
+    (lead_time_days_max: 5, ranking_criterion: reliability). The candidate
+    list shuffle reorders SUP-11/12/13 but preserves all three. The
+    reordered_constraints variant states the constraint before the
+    candidates rather than after. distractor_supplier_text adds neutral
+    descriptive text about suppliers without changing the gold answer.
+    All variants explicitly mention the lead-time constraint AND the
+    reliability ranking, so the model has both signals it needs.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Look at suppliers SUP-11, SUP-12, and SUP-13. Choose the one that meets the lead-time limit and ranks highest on reliability."
+
+  - id: v2
+    axis: candidate_order_shuffle
+    text: "Compare suppliers SUP-13, SUP-11, and SUP-12. Pick the one that satisfies the lead-time limit and has the highest reliability."
+
+  - id: v3
+    axis: distractor_supplier_text
+    text: |
+      We're finalizing a contract decision. Compare suppliers SUP-11,
+      SUP-12, and SUP-13 — each has different strengths in terms of
+      pricing, support quality, and geographic coverage, but for this
+      decision the only criteria that matter are: the supplier must
+      satisfy the lead-time limit, and among those who do, you should
+      pick the one with the highest reliability.
+
+  - id: v4
+    axis: reordered_constraints
+    text: "Among the candidates that satisfy the lead-time limit, pick the one with the highest reliability. The candidates are SUP-11, SUP-12, and SUP-13."
+
+  - id: v5
+    axis: mild_wording_noise
+    text: "Compare suppliers SUP-11, SUP-12, and SUP-13. Identify the one that meets the lead-time limit and has the best reliability score among them."

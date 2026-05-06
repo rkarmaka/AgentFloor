@@ -1,0 +1,77 @@
+task_id: D4
+fixture: fixtures/D/D4_certification_registry.yaml
+name: Recover from failed search
+level: D
+category: multi_source_reasoning
+subcategory: typo_reformulation
+goal: Recover from a failed search caused by noisy or misspelled input.
+difficulty_rationale: Introduces failure and requires reformulation rather than collapse.
+tools_available:
+  - search_records
+max_steps: 8
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: certification_registry
+  user_intent: recover_from_search_failure
+gold_state:
+  noisy_query: Alfa Sensr Pro
+  corrected_query: Alpha Sensor Pro
+  target_record_id: P201
+  target_attribute: certified
+  target_value: true
+pass_conditions:
+  - initial_failure_recognized
+  - corrected_retry_attempted
+  - correct_record_found
+  - correct_final_value_reported
+soft_metrics:
+  - recovery_success
+  - num_retries
+  - num_tool_calls
+primary_failure_labels:
+  - recovery_failure
+  - repeated_same_error
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - typo_pattern
+  - distractor_near_matches
+  - paraphrase
+  - reordered_instruction
+  - mild_clutter
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      record_id: P201
+      certified: true
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_recovery: true
+    require_query_correction: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_after_error
+      without_retry: true
+    - type: repeated_identical_call
+      tool: search_records
+      max_identical_consecutive: 1
+
+notes_for_evaluator: Recovery should involve meaningful query correction, not blind repetition.
+example_prompt: Find the record for Alfa Sensr Pro and tell me whether it is certified.
+expected_agent_behavior:
+  - attempt initial search
+  - observe no-match or error
+  - infer typo/noisy input
+  - retry with corrected query
+  - answer certification status

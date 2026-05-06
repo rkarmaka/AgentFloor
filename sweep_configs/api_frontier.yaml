@@ -1,0 +1,47 @@
+# Frontier API ceiling — GPT-4o, Gemini 2.5, Claude Sonnet
+# Establishes the upper bound on TCR to anchor the capability floor analysis.
+#
+# Requires environment variables:
+#   OPENAI_API_KEY
+#   GEMINI_API_KEY (or GOOGLE_API_KEY)
+#   ANTHROPIC_API_KEY
+#
+# Usage — run one provider at a time to avoid API quota conflicts:
+#   python runs/run_sweep.py --config sweep_configs/api_frontier.yaml --models gpt-4o
+#   python runs/run_sweep.py --config sweep_configs/api_frontier.yaml --models gemini-2.5-flash
+#   python runs/run_sweep.py --config sweep_configs/api_frontier.yaml --models claude-sonnet-4-6
+
+sweep_name: api_frontier
+backend: openai            # default; per-model overrides below
+results_dir: results
+max_output_tokens: 1024
+auto_pull: false
+auto_stop: false
+
+models:
+  - name: gpt-5-nano
+    backend: openai
+    tier: frontier
+    notes: OpenAI API, requires OPENAI_API_KEY
+  - name: gpt-5-mini
+    backend: openai
+    tier: frontier
+    notes: OpenAI API, requires OPENAI_API_KEY
+  - name: gemini-2.5-flash
+    backend: gemini
+    tier: frontier
+    notes: Gemini API, requires GEMINI_API_KEY
+  - name: gemini-2.5-pro
+    backend: gemini
+    tier: frontier
+  - name: claude-sonnet-4-6
+    backend: anthropic
+    tier: frontier
+    notes: Anthropic API, requires ANTHROPIC_API_KEY
+  - name: claude-haiku-4-5
+    backend: anthropic
+    tier: frontier
+
+tasks: all
+variants: [v0]
+runs_per_combo: 1

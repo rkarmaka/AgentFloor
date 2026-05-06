@@ -1,0 +1,67 @@
+task_id: E2
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is FW-3. FW-1 wins on throughput but lacks reporting plugin
+    support. Both requirements (current throughput + future reporting plugin)
+    must appear in every variant. Entity IDs FW-1 and FW-3 are never mentioned
+    in the prompt itself but the task fixture resolves them.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Pick a data pipeline framework for project P-Delta. The framework needs to
+      handle the current throughput requirements and also provide support for the
+      reporting plugin that will be needed during the final deployment stage.
+      Compare the candidates on both dimensions before making your selection, then
+      submit your choice.
+  - id: v2
+    axis: future_dependency_wording
+    text: |
+      Select a data pipeline framework for project P-Delta. It must satisfy the
+      current throughput demands. Additionally, the downstream deployment phase
+      will require a reporting plugin, and your chosen framework must be able to
+      support that plugin when the time comes. Evaluate candidates against both
+      the immediate and deferred requirements, and submit the best option.
+  - id: v3
+    axis: distractor_framework_strength
+    text: |
+      Choose a data pipeline framework for project P-Delta. One of the candidates
+      has significantly higher throughput than the others and may look like the
+      obvious winner. However, the framework must also support the reporting plugin
+      required in the final deployment stage. Make sure your choice satisfies both
+      the throughput needs and the plugin dependency before submitting.
+  - id: v4
+    axis: reordered_requirements
+    text: |
+      For project P-Delta, we need a data pipeline framework that supports the
+      reporting plugin required in the final deployment stage. It also has to meet
+      the current throughput requirements. Look up the candidates, compare them on
+      both criteria, verify constraints, and submit the framework that satisfies
+      everything.
+  - id: v5
+    axis: mild ambiguity
+    text: |
+      Select a data pipeline framework for project P-Delta. Throughput is the
+      primary concern right now, but keep in mind there is a reporting capability
+      that will need to plug in later during the final deployment stage. The
+      framework you choose should be able to accommodate that as well. Compare
+      your options, check constraints, and submit the selection.
+  - id: v6_explicit
+    axis: explicit_submission_instruction
+    text: |
+      Select a data pipeline framework for project P-Delta. It must meet current
+      throughput needs, and it also has to support the reporting plugin required
+      in the final deployment stage. After evaluating all candidates, you MUST
+      call submit_decision with your chosen framework. Your task is not complete
+      until you have submitted a decision.
+  - id: v7_explicit
+    axis: explicit_submission_instruction_v2
+    text: |
+      Choose a data pipeline framework for project P-Delta that handles both
+      current throughput requirements and the future reporting plugin dependency.
+      Compare candidates, check constraints, then finalize by calling
+      submit_decision with the selected framework_id. Do not stop after just
+      analyzing options — you must submit a decision.

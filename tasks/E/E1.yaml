@@ -1,0 +1,104 @@
+task_id: E1
+fixture: fixtures/E/E1_workstation_procurement.yaml
+name: Build a valid multi-step procurement plan
+level: E
+category: long_horizon_planning
+subcategory: constrained_procurement_workflow
+goal: Build a full procurement plan satisfying vendor approval, compatibility, and budget.
+difficulty_rationale: Long-horizon coordination across multiple dependent decisions.
+tools_available:
+  - list_options
+  - lookup_record
+  - check_constraint
+  - submit_decision
+max_steps: 10
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: workstation_procurement
+  user_intent: build_valid_procurement_bundle
+gold_state:
+  bundle_constraints:
+    budget_max: 4000              # enforced by bundle_validator at submission time
+    vendor_must_be_approved: true # checkable per-record via check_constraint
+    gpu_chassis_compatibility: required  # enforced by bundle_validator at submission time
+  canonical_bundle:
+    vendor_id: V-Approved-2
+    chassis_id: CH-4
+    gpu_id: GPU-7
+  any_valid_bundle_accepted: true
+pass_conditions:
+  - approved_vendor_used
+  - compatibility_verified
+  - budget_respected
+  - final_bundle_matches_gold_or_equivalent_valid_solution
+  - valid_submission_accepted
+soft_metrics:
+  - constraint_preservation
+  - num_tool_calls
+  - num_steps
+  - redundant_calls
+primary_failure_labels:
+  - constraint_drift
+  - compatibility_violation
+  - budget_violation
+  - invalid_submission
+secondary_failure_labels:
+  - incomplete_planning
+variant_axes:
+  - paraphrase
+  - component_order_variation
+  - distractor_high_performance_parts
+  - reordered_constraints
+  - mild wording noise
+  - explicit_submission_instruction
+  - explicit_submission_instruction_v2
+oracle_evaluator:
+  final_answer_check:
+    type: any_valid_solution
+    canonical_solution:
+      vendor_id: V-Approved-2
+      chassis_id: CH-4
+      gpu_id: GPU-7
+    equivalence_rule: bundle_validator_passes
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    # Bundle-level constraints (budget, compatibility) are enforced at
+    # submission time by the fixture's bundle_validator. The only
+    # check_constraint target exposed to the model is vendor_must_be_approved.
+    require_constraint_check_called:
+      - vendor_must_be_approved
+  submission_check:
+    required: true
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+    - lookup_record
+    - submit_decision
+  optional_tools:
+    # check_constraint can verify vendor approval up front, but the model
+    # may also read approved status directly from lookup_record output.
+    - check_constraint
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: skip_required_step
+      step: bundle_submission
+
+notes_for_evaluator: >
+  Any bundle satisfying budget, vendor approval, and gpu/chassis compatibility
+  is accepted. Four valid bundles exist (see fixture gold.all_valid_bundles).
+  Trajectory completeness is judged on whether the model verified vendor
+  approval and submitted a valid bundle, not on whether it picked the
+  canonical solution.
+example_prompt: Set up a procurement plan for a GPU workstation under the team budget. The plan must use only approved vendors, and the selected GPU must be compatible with the chosen chassis.
+expected_agent_behavior:
+  - list relevant options
+  - verify vendor approval
+  - verify chassis/GPU compatibility
+  - track cumulative budget
+  - choose valid bundle
+  - submit final plan

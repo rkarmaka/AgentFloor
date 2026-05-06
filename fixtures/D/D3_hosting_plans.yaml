@@ -1,0 +1,76 @@
+task_id: D3
+domain: hosting_plan_selection
+description: >
+  Hosting plans for D3. Tests multi-constraint conjunctive filtering.
+  Three constraints: budget <= 300, gpu_required = true, uptime >= 99.9.
+  Only HP-2 satisfies all three. Distractors fail at least one.
+
+options:
+  hosting_plans:
+    - id: HP-1
+      name: "Basic Tier"
+    - id: HP-2
+      name: "GPU Standard"
+    - id: HP-3
+      name: "GPU Pro"
+    - id: HP-4
+      name: "Compute Heavy"
+    - id: HP-5
+      name: "Budget GPU"
+
+records:
+  HP-1:
+    name: "Basic Tier"
+    monthly_price: 120
+    gpu_available: false
+    uptime_percent: 99.95
+  HP-2:
+    name: "GPU Standard"
+    monthly_price: 280
+    gpu_available: true
+    uptime_percent: 99.92
+  HP-3:
+    name: "GPU Pro"
+    monthly_price: 450
+    gpu_available: true
+    uptime_percent: 99.99
+  HP-4:
+    name: "Compute Heavy"
+    monthly_price: 350
+    gpu_available: false
+    uptime_percent: 99.95
+  HP-5:
+    name: "Budget GPU"
+    monthly_price: 220
+    gpu_available: true
+    uptime_percent: 99.5
+
+constraints:
+  budget_max:
+    field: monthly_price
+    operator: lte
+    value: 300
+  gpu_required:
+    field: gpu_available
+    operator: eq
+    value: true
+  uptime_min:
+    field: uptime_percent
+    operator: gte
+    value: 99.9
+
+gold:
+  candidates:
+    - HP-1
+    - HP-2
+    - HP-3
+    - HP-4
+    - HP-5
+  constraint_violations:
+    HP-1: [gpu_required]
+    HP-3: [budget_max]
+    HP-4: [gpu_required]
+    HP-5: [uptime_min]
+  valid_candidates:
+    - HP-2
+  target_record_id: HP-2

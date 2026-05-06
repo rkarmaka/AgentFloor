@@ -1,0 +1,29 @@
+task_id: D2
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: INV-77 official stock is 47 (audit wins over warehouse's 52).
+    The precedence rule audit_overrides_warehouse must be preserved in every
+    variant. All variants keep INV-77 and the conflict resolution logic intact.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "What is the official stock count for item INV-77? Two sources track this item: the warehouse ledger and the audit log. If the two values differ, the audit log takes precedence."
+  - id: v2
+    axis: conflicting_value_magnitude
+    text: "Determine the official stock count for INV-77. Be aware that the warehouse record and audit record report diferent quantities, and the gap may be significant. When there is a discrepancy, trust the audit record."
+  - id: v3
+    axis: reordered_rule_statement
+    text: "The audit record always overrides the warehouse record when they disagree. With that rule in mind, look up item INV-77 and report the official stock count."
+  - id: v4
+    axis: distractor_fields
+    text: "Look up item INV-77. The record includes fields like reorder_point, supplier_id, and last_updated, but focus only on the stock count. The warehouse and audit records may disagree. Use the audit record if there is a conflict."
+  - id: v5
+    axis: wording_noise
+    text: |
+      We need to reconcile inventory for item INV-77. The warehouse system and the
+      independant audit trail sometimes report different stock levels. Please determine
+      the official count. In any case of disagreement, the audit record is the
+      authoritative source.

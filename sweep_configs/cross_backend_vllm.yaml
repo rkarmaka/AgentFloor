@@ -1,0 +1,44 @@
+# Cross-backend replication — vLLM serving for Ollama→vLLM agreement
+#
+# Runs a subset of models that were benchmarked on Ollama, now served via
+# vLLM, to verify that backend choice doesn't alter TCR. Uses the same
+# model weights (HuggingFace equivalents of the Ollama GGUF quantizations).
+#
+# 15-task subset: all A0/A/B (15 tasks) + 3 C + 3 D + 3 E = 24... actually
+# the plan says 15 tasks total: A0(5)+A(5)+B(5) = 15. That's the stable
+# range where most SLMs have signal.
+#
+# 3 models x 15 tasks x 2 variants x 3 runs = 270 runs
+#
+# vLLM serves ONE model per server — run one at a time:
+#   vllm serve google/gemma-3-27b-it --port 8000
+#   python runs/run_sweep.py --config sweep_configs/cross_backend_vllm.yaml \
+#     --models google/gemma-3-27b-it
+
+sweep_name: cross_backend_vllm
+backend: vllm
+base_url: http://localhost:8000/v1
+results_dir: results
+max_output_tokens: 1024
+auto_pull: false
+auto_stop: false
+
+models:
+  - name: google/gemma-3-27b-it
+    params_b: 26.0
+    tier: 26b
+    notes: "HF equivalent of gemma4:26b on Ollama"
+
+  - name: mistralai/Ministral-8B-Instruct-2410
+    params_b: 8.0
+    tier: 7b9b
+    notes: "HF equivalent of ministral-3:8b on Ollama"
+
+  - name: Qwen/Qwen3-32B
+    params_b: 32.0
+    tier: 30b
+    notes: "HF equivalent of qwen3:32b on Ollama"
+
+tasks: [A01, A02, A03, A04, A05, A1, A2, A3, A4, A5, B1, B2, B3, B4, B5]
+variants: [v0, v1]
+runs_per_combo: 3

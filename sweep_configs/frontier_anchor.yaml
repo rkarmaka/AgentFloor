@@ -1,0 +1,40 @@
+# Frontier anchor sweep — full 30-task runs for paper ceiling
+#
+# Three frontier models, 3 variants, 3 runs each = 810 runs.
+# This produces the authoritative ceiling numbers for the paper's
+# capability floor analysis with CIs.
+#
+# Requires:
+#   OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY
+#
+# Cost estimate: ~$150-400 total depending on task complexity.
+# Runtime: ~3-4h sequential, less with parallel providers.
+#
+# Usage:
+#   python runs/run_sweep.py --config sweep_configs/frontier_anchor.yaml --models gpt-5
+#   python runs/run_sweep.py --config sweep_configs/frontier_anchor.yaml --models claude-sonnet-4-6
+#   python runs/run_sweep.py --config sweep_configs/frontier_anchor.yaml --models gemini-2.5-pro
+
+sweep_name: frontier_anchor
+results_dir: results
+max_output_tokens: 2048
+
+models:
+  - name: gpt-5
+    backend: openai
+    tier: frontier
+    notes: "OpenAI flagship — reasoning model, uses max_completion_tokens"
+
+  - name: claude-sonnet-4-6
+    backend: anthropic
+    tier: frontier
+    notes: "Anthropic flagship"
+
+  - name: gemini-2.5-pro
+    backend: gemini
+    tier: frontier
+    notes: "Google flagship"
+
+tasks: all
+variants: [v0, v1, v2]
+runs_per_combo: 3

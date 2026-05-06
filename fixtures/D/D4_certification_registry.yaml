@@ -1,0 +1,45 @@
+task_id: D4
+domain: certification_registry
+description: >
+  Certification registry for D4. Tests recovery from failed search via typo correction.
+  The noisy query "Alfa Sensr Pro" returns empty matches (scripted failure).
+  After the model corrects the query to "Alpha Sensor Pro", the search succeeds.
+
+records:
+  P201:
+    name: "Alpha Sensor Pro"
+    certified: true
+    certification_date: "2026-01-15"
+    issuing_body: "ISO Cert Agency"
+    expiration: "2027-01-15"
+  P202:
+    name: "Alpha Sensor Lite"
+    certified: false
+    certification_date: null
+    issuing_body: null
+    expiration: null
+
+search_index:
+  "Alpha Sensor Pro":
+    - P201
+  "Alpha Sensor":
+    - P201
+    - P202
+
+scripted_failures:
+  - tool: search_records
+    when_args:
+      query: "Alfa Sensr Pro"
+    response:
+      status: ok
+      result:
+        matches: []
+      error: null
+      note: "Empty matches force the model to recognize and correct the typo."
+
+gold:
+  noisy_query: "Alfa Sensr Pro"
+  corrected_query: "Alpha Sensor Pro"
+  target_record_id: P201
+  target_attribute: certified
+  expected_value: true

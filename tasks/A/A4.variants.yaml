@@ -1,0 +1,28 @@
+task_id: A4
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is 4 storage plans with IDs SP-1, SP-2, SP-3, SP-4.
+    All variants must ask the model to list options and report count + IDs.
+    Typos never touch plan IDs.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Show me every storage plan that's available, and tell me the total number of plans along with each plan's ID."
+  - id: v2
+    axis: reordered_instruction
+    text: "How many storage plans are there, and what are their IDs? Please list all available plans."
+  - id: v3
+    axis: distractor_text
+    text: |
+      We are evaluating cloud providers and need to compare pricing later.
+      For now, just list all available storage plans and tell me how many
+      there are, including each plan's ID.
+  - id: v4
+    axis: wording_noise
+    text: "I need a rundown of the availble storage plans — give me the full list, the total count, and all the plan IDs."
+  - id: v5
+    axis: mild_typo
+    text: "Lst all availabel storage plans and tell me how manny there are along with there IDs."

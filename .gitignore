@@ -1,0 +1,50 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*.local
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# AgentFloor outputs
+results/
+runs/results/
+*.tmp
+llm_judge_cache.jsonl
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Local Claude/agent settings
+.claude/settings.local.json

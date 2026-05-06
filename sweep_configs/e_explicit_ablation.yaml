@@ -1,0 +1,53 @@
+# E-tier explicit-vs-implicit submission ablation
+#
+# Tests whether SLMs fail E1/E2 because the task prompt is implicit about
+# needing submit_decision, or because they genuinely can't plan that far.
+#
+# v0 = original implicit prompt ("set up a plan", "select a framework")
+# v6_explicit = "you MUST call submit_decision"
+# v7_explicit = alternate explicit wording
+#
+# 6 models x 2 tasks x 3 variants x 5 runs = 180 runs
+# Expected runtime: ~2h for Ollama models, ~30m for API models
+
+sweep_name: e_explicit_ablation
+results_dir: results
+max_output_tokens: 1024
+
+models:
+  - name: gpt-5-mini
+    backend: openai
+    tier: frontier
+    notes: "Frontier reference — should pass regardless of explicitness"
+
+  - name: gpt-5
+    backend: openai
+    tier: frontier
+    notes: "Frontier ceiling"
+
+  - name: claude-sonnet-4-6
+    backend: anthropic
+    tier: frontier
+    notes: "Frontier cross-vendor reference"
+
+  - name: gemma4:26b
+    backend: ollama
+    params_b: 26.0
+    tier: 26b
+    notes: "Top SLM — most likely to show explicit-boost effect"
+
+  - name: qwen3:32b-nothink
+    backend: ollama
+    params_b: 32.0
+    tier: 30b
+    notes: "Qwen3 no-think ceiling"
+
+  - name: ministral-3:8b
+    backend: ollama
+    params_b: 8.0
+    tier: 7b9b
+    notes: "Mid-tier SLM — high F5 rate on E-tier"
+
+tasks: [E1, E2]
+variants: [v0, v6_explicit, v7_explicit]
+runs_per_combo: 5

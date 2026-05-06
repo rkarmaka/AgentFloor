@@ -1,0 +1,72 @@
+task_id: C4
+domain: vendor_selection
+description: >
+  Vendor selection for C4. Tests preferred-vs-backup fallback under constraint.
+  V-1 is the preferred vendor but its quote (5800) exceeds the budget of 5000.
+  V-3 is the approved backup at 4700.
+
+options:
+  vendors:
+    - id: V-1
+      name: "Premier Supplies Inc."
+      quote: 5800
+      role: preferred
+    - id: V-2
+      name: "Mid Tier Vendor"
+      quote: 5200
+      role: alternate
+    - id: V-3
+      name: "Reliable Backup Co."
+      quote: 4700
+      role: approved_backup
+
+records:
+  V-1:
+    name: "Premier Supplies Inc."
+    quote: 5800
+    delivery_days: 4
+    role: preferred
+  V-2:
+    name: "Mid Tier Vendor"
+    quote: 5200
+    delivery_days: 6
+    role: alternate
+  V-3:
+    name: "Reliable Backup Co."
+    quote: 4700
+    delivery_days: 7
+    role: approved_backup
+
+constraints:
+  budget_limit:
+    field: quote
+    operator: lte
+    value: 5000
+
+submission_validator:
+  required_fields: [vendor_id]
+  branch_rules:
+    - when:
+        record_id: V-1
+        constraint: budget_limit
+        satisfied: true
+      expected_vendor_id: V-1
+    - when:
+        record_id: V-1
+        constraint: budget_limit
+        satisfied: false
+      expected_vendor_id: V-3
+  on_match:
+    status: ok
+    submission_id: SUB-C4-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: wrong_branching
+
+gold:
+  preferred_vendor_id: V-1
+  preferred_quote: 5800
+  budget_limit: 5000
+  preferred_passes_budget: false
+  expected_vendor_id: V-3

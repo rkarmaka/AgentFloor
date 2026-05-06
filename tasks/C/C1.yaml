@@ -1,0 +1,77 @@
+task_id: C1
+fixture: fixtures/C/C1_component_assignment.yaml
+name: Active vs fallback branch
+level: C
+category: conditional_branching
+subcategory: binary_status_branch
+goal: Choose the primary action only if the component is active; otherwise choose a fallback.
+difficulty_rationale: Requires explicit branch selection from intermediate state.
+tools_available:
+  - lookup_record
+  - submit_decision
+max_steps: 6
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: component_assignment
+  user_intent: assign_component_conditionally
+gold_state:
+  target_record_id: CMP-31
+  branch_field: status
+  primary_branch_value: active
+  primary_submission: assign_primary
+  fallback_submission: assign_fallback
+pass_conditions:
+  - correct_branch_taken
+  - correct_submission_sent
+  - submission_accepted
+soft_metrics:
+  - branch_correctness
+  - num_tool_calls
+  - invalid_tool_calls
+primary_failure_labels:
+  - branching_error
+  - wrong_submission
+  - final_answer_incorrect
+secondary_failure_labels:
+  - skipped_lookup
+variant_axes:
+  - paraphrase
+  - distractor_branch_language
+  - reordered_if_else
+  - status_synonym_noise
+  - mild_prompt_clutter
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      branch_taken: assign_primary OR assign_fallback
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_branch_correctness: true
+  submission_check:
+    required: true
+    expected_submission:
+      action: assign_primary OR assign_fallback
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: skip_required_step
+      step: lookup_before_branch
+
+notes_for_evaluator: Must evaluate branch against actual record status in gold state. The expected_submission action depends on the oracle value of CMP-31 status at runtime.
+example_prompt: Check component CMP-31. If it is active, assign it to the job. If it is inactive, submit the fallback component instead.
+expected_agent_behavior:
+  - retrieve CMP-31
+  - inspect status
+  - choose correct branch
+  - submit primary or fallback accordingly

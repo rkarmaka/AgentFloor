@@ -1,0 +1,35 @@
+task_id: B3
+domain: package_catalog
+description: >
+  Package catalog for B3. Tests lookup → compute chaining.
+  PKG-88 has unit_price=12 and quantity=8; multiplying gives 96.
+
+records:
+  PKG-88:
+    name: "Standard Batch"
+    unit_price: 12
+    quantity: 8
+    category: bulk
+  PKG-89:
+    name: "Express Batch"
+    unit_price: 18
+    quantity: 5
+    category: express
+  PKG-90:
+    name: "Custom Batch"
+    unit_price: 25
+    quantity: 4
+    category: custom
+  PKG-100:
+    name: "Trial Pack"
+    unit_price: 8
+    quantity: 2
+    category: trial
+
+gold:
+  target_record_id: PKG-88
+  required_inputs:
+    unit_price: 12
+    quantity: 8
+  operation: multiply
+  expected_result: 96

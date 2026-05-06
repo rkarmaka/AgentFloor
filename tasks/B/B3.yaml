@@ -1,0 +1,77 @@
+task_id: B3
+fixture: fixtures/B/B3_package_catalog.yaml
+name: Retrieve values then compute
+level: B
+category: sequential_chaining
+subcategory: lookup_then_compute
+goal: Look up a record to get numeric fields, then compute a derived value from them.
+difficulty_rationale: Two-step chain — model must extract numeric values from lookup output and pass them correctly to compute.
+tools_available:
+  - lookup_record
+  - compute_value
+max_steps: 4
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: package_catalog
+  user_intent: compute_total_cost
+gold_state:
+  target_record_id: PKG-88
+  fields:
+    unit_price: 12
+    quantity: 8
+  operation: multiply
+  target_value: 96
+pass_conditions:
+  - correct_record_retrieved
+  - correct_values_extracted
+  - correct_operation_used
+  - correct_result_reported
+  - within_step_budget
+soft_metrics:
+  - num_steps
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_record_id
+  - wrong_values_passed
+  - computation_error
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - distractor_numeric_fields
+  - wording_noise
+  - reordered_context
+  - field_name_variation
+
+oracle_evaluator:
+  final_answer_check:
+    type: numeric_match
+    expected_fields:
+      total_cost: 96
+    tolerance: 0
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - compute_value
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: Model must retrieve values via lookup first, not hardcode them. The compute_value call must use the retrieved values.
+example_prompt: Look up package PKG-88 and calculate the total cost by multiplying unit price by quantity.
+expected_agent_behavior:
+  - call lookup_record with PKG-88
+  - extract unit_price (12) and quantity (8)
+  - call compute_value with multiply, 12, 8
+  - report 96

@@ -1,0 +1,24 @@
+task_id: A4
+domain: storage_plans
+description: >
+  Storage plans listing for A4. Tests a single list_options call.
+  Model must enumerate all 4 plans and report count + IDs.
+
+options:
+  storage_plans:
+    - id: SP-1
+      name: "Starter"
+    - id: SP-2
+      name: "Standard"
+    - id: SP-3
+      name: "Pro"
+    - id: SP-4
+      name: "Enterprise"
+
+gold:
+  expected_count: 4
+  expected_ids:
+    - SP-1
+    - SP-2
+    - SP-3
+    - SP-4

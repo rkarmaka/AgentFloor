@@ -1,0 +1,29 @@
+task_id: D4
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: P201 (Alpha Sensor Pro), certified=true. The original prompt
+    has a typo "Alfa Sensr Pro". Each variant uses a DIFFERENT typo pattern
+    but the gold record P201 and corrected query "Alpha Sensor Pro" remain
+    the same. Distractor P202 (Alpha Sensor Lite) exists but is not the target.
+variants:
+  - id: v1
+    axis: typo_pattern
+    text: "Find the record for Alpha Sensar Pro and tell me whether it is certified."
+  - id: v2
+    axis: distractor_near_matches
+    text: "Look up Alfa Sensr Pro and check its certification status. Note that similar products like Alpha Sensor Lite may appear in search results, but I need the Pro variant specifically."
+  - id: v3
+    axis: paraphrase
+    text: "I need to verify the certification status of a product called Alfa Sensr Pro. Search the registry and report whether it is certified or not."
+  - id: v4
+    axis: reordered_instruction
+    text: "Check whether the product is certified, then report your finding. The product name is Alfa Sensor Pro."
+  - id: v5
+    axis: mild_clutter
+    text: |
+      We're auditing our parts catalog for compliance. One item on the list is
+      Alfa Sensr Pro. Please find its record in the certfication registry and
+      confirm whether it holds a valid certification.

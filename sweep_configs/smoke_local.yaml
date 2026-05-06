@@ -1,0 +1,21 @@
+# Smoke test using models already pulled locally.
+# Uses gemma3:1b (pulled) against task A01 (simplest, no tools).
+# 1 model x 1 task x 1 run = 1 run. Should complete in seconds.
+
+sweep_name: smoke_local
+backend: ollama
+base_url: http://localhost:11434/v1
+results_dir: /tmp/agentfloor_smoke_results
+max_output_tokens: 512
+auto_pull: false   # assume already pulled
+probe_before_run: false   # A01 has no tools; skip probe
+compat_out: /tmp/agentfloor_smoke_results/ollama_compatibility.yaml
+
+models:
+  - name: gemma3:1b
+    params_b: 1.0
+    tier: sub3b
+
+tasks: [A01]
+variants: [v0]
+runs_per_combo: 1

@@ -1,0 +1,78 @@
+task_id: C5
+fixture: fixtures/C/C5_ticket_triage.yaml
+name: Escalate only if a critical flag exists
+level: C
+category: conditional_branching
+subcategory: severity_branch
+goal: Escalate only when severity is critical.
+difficulty_rationale: Requires extracting a decision-driving attribute before action.
+tools_available:
+  - lookup_record
+  - get_attribute
+  - submit_decision
+max_steps: 6
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: ticket_triage
+  user_intent: severity_based_routing
+gold_state:
+  target_record_id: T-908
+  decision_attribute: severity
+  expected_value: critical
+  expected_submission: escalate
+pass_conditions:
+  - severity_correctly_identified
+  - correct_branch_taken
+  - correct_submission_sent
+soft_metrics:
+  - branch_correctness
+  - num_tool_calls
+  - invalid_tool_calls
+primary_failure_labels:
+  - attribute_extraction_error
+  - branching_error
+  - wrong_submission
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - severity_synonyms
+  - distractor_ticket_details
+  - reordered_constraints
+  - identifier_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      action: escalate
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_branch_correctness: true
+  submission_check:
+    required: true
+    expected_submission:
+      action: escalate
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - submit_decision
+  optional_tools:
+    - get_attribute
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: skip_required_step
+      step: severity_check_before_action
+
+notes_for_evaluator: Accept direct lookup usage if severity is present; otherwise get_attribute expected.
+example_prompt: Review ticket T-908. If the issue severity is critical, escalate it. Otherwise, keep it in the current queue.
+expected_agent_behavior:
+  - inspect ticket
+  - determine severity
+  - escalate only if critical
+  - submit routing action

@@ -1,0 +1,41 @@
+task_id: D2
+domain: inventory_audit
+description: >
+  Inventory audit for D2. Tests conflict resolution with precedence rules.
+  INV-77 has conflicting stock counts (warehouse=52, audit=47).
+  Per precedence rules, audit_stock is the canonical value.
+  INV-78 is a distractor with no conflict.
+
+records:
+  INV-77:
+    name: "Industrial Bolt M8"
+    warehouse_stock: 52
+    audit_stock: 47
+    last_audit_date: "2026-03-15"
+    location: "warehouse-A"
+    sku: "IBM8-77"
+  INV-78:
+    name: "Steel Pin"
+    warehouse_stock: 100
+    audit_stock: 100
+    last_audit_date: "2026-03-10"
+    location: "warehouse-B"
+    sku: "SP-78"
+  INV-99:
+    name: "Hex Nut M6"
+    warehouse_stock: 240
+    audit_stock: 235
+    last_audit_date: "2026-03-12"
+    location: "warehouse-A"
+    sku: "HN6-99"
+
+precedence_rules:
+  stock_count: audit_overrides_warehouse
+
+gold:
+  target_record_id: INV-77
+  conflicting_fields:
+    warehouse_stock: 52
+    audit_stock: 47
+  precedence_rule: audit_overrides_warehouse
+  expected_official_value: 47

@@ -1,0 +1,118 @@
+task_id: E4
+domain: deployment_partner_selection
+description: >
+  Deployment partners for E4. Full end-to-end pipeline test.
+  Pipeline: search → verify → resolve conflict → score → check compliance → submit.
+  EP-6 has the highest weighted score after applying audit_overrides_profile precedence
+  AND has compliance=true. Other partners fail compliance or score lower.
+
+records:
+  EP-1:
+    name: "EdgeNet Solutions"
+    profile_cost: 4500
+    audit_cost: 4500
+    profile_reliability: 88
+    audit_reliability: 82
+    compliance: true
+  EP-2:
+    name: "RolloutPartners"
+    profile_cost: 3800
+    audit_cost: 4100
+    profile_reliability: 95
+    audit_reliability: 78
+    compliance: false
+  EP-3:
+    name: "DeployFast"
+    profile_cost: 5200
+    audit_cost: 5400
+    profile_reliability: 90
+    audit_reliability: 88
+    compliance: true
+  EP-4:
+    name: "QuickEdge"
+    profile_cost: 3000
+    audit_cost: 3500
+    profile_reliability: 75
+    audit_reliability: 70
+    compliance: true
+  EP-5:
+    name: "GlobalRollout"
+    profile_cost: 6000
+    audit_cost: 5800
+    profile_reliability: 92
+    audit_reliability: 91
+    compliance: false
+  EP-6:
+    name: "PrimeEdge Network"
+    profile_cost: 4200
+    audit_cost: 4000
+    profile_reliability: 89
+    audit_reliability: 92
+    compliance: true
+
+search_index:
+  "edge rollout partner":
+    - EP-1
+    - EP-2
+    - EP-3
+    - EP-4
+    - EP-5
+    - EP-6
+  "edge rollout":
+    - EP-1
+    - EP-3
+    - EP-6
+
+precedence_rules:
+  cost: audit_overrides_profile
+  reliability: audit_overrides_profile
+
+scoring_rule:
+  formula: weighted_score
+  weights:
+    reliability: 0.7
+    cost_inverse: 0.3
+  cost_normalization: divide_by_10000
+  formula_explanation: >
+    weighted_score = (audit_reliability * 0.7) + ((1 - audit_cost/10000) * 0.3 * 100)
+
+constraints:
+  compliance_required:
+    field: compliance
+    operator: eq
+    value: true
+
+submission_validator:
+  required_fields: [partner_id]
+  expected_partner_id: EP-6
+  on_match:
+    status: ok
+    submission_id: SUB-E4-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: wrong_partner
+
+gold:
+  query: "edge rollout partner"
+  candidates:
+    - EP-1
+    - EP-2
+    - EP-3
+    - EP-4
+    - EP-5
+    - EP-6
+  compliance_failures:
+    - EP-2
+    - EP-5
+  compliant_candidates:
+    - EP-1
+    - EP-3
+    - EP-4
+    - EP-6
+  precedence_resolved_values:
+    EP-1: { reliability: 82, cost: 4500 }
+    EP-3: { reliability: 88, cost: 5400 }
+    EP-4: { reliability: 70, cost: 3500 }
+    EP-6: { reliability: 92, cost: 4000 }
+  target_record_id: EP-6

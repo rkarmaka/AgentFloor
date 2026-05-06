@@ -1,0 +1,35 @@
+task_id: A2
+domain: supplier_registry
+description: >
+  Supplier registry for A2. Tests a single search_records call.
+  Search index maps "Pinnacle Systems" to SUP-104.
+
+records:
+  SUP-104:
+    name: "Pinnacle Systems"
+    country: Canada
+    tier: gold
+    onboarded: "2023-04-12"
+  SUP-205:
+    name: "Pinnacle Logistics"
+    country: USA
+    tier: silver
+    onboarded: "2024-01-08"
+  SUP-388:
+    name: "Apex Components"
+    country: Germany
+    tier: gold
+    onboarded: "2022-09-30"
+
+search_index:
+  "Pinnacle Systems":
+    - SUP-104
+  "Pinnacle":
+    - SUP-104
+    - SUP-205
+  "Apex":
+    - SUP-388
+
+gold:
+  query: "Pinnacle Systems"
+  target_record_id: SUP-104

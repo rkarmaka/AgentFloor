@@ -1,0 +1,37 @@
+task_id: A1
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Each variant exemplifies one axis from task.variant_axes while preserving
+    the gold answer reachability (target_record_id: P104, status: active).
+    Typos are placed in surrounding words, not in the entity name itself, so
+    the model can still issue a correct lookup. ID_format_noise uses a
+    cosmetic transform (lowercase + dash) that requires the model to
+    normalize before calling lookup_record.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Could you check what the current state of product P104 is?"
+
+  - id: v2
+    axis: distractor_text
+    text: |
+      We're prepping for tomorrow's inventory review and the catalog needs
+      to be cross-checked before the standup. As part of that, please look
+      up product record P104 and tell me its current status. The other
+      sensors can wait until later this week.
+
+  - id: v3
+    axis: ID_format_noise
+    text: "Look up product record p-104 and tell me its current status."
+
+  - id: v4
+    axis: reordered_instruction
+    text: "I need the current status of product P104. To get it, you'll need to look up the record first."
+
+  - id: v5
+    axis: mild_typo
+    text: "Look up prouduct record P104 and tell me its currrent status."

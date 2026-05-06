@@ -1,0 +1,11 @@
+# AgentFloor — runtime dependencies
+# Python >= 3.10 required (db.py uses match statements).
+
+# Core
+PyYAML>=6.0
+jsonschema>=4.21
+
+# Provider SDKs (lazy-imported per provider; install only what you need)
+anthropic>=0.40
+openai>=1.50
+google-genai>=0.3

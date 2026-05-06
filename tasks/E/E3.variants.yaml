@@ -1,0 +1,52 @@
+task_id: E3
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is CI-4. CI-9 is tempting but violates at least one hard
+    constraint. All three hard constraints must appear in every variant:
+    budget < 250, region = east, CUDA version = 12. The task tests F3
+    (context amnesia) -- constraints stated early must survive across
+    many tool calls.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Pick a cloud instance for a research run. The instance must cost less than
+      the budget limit, be located in the east region, and support CUDA 12. If you
+      find options that appear faster or more powerful but break any of those three
+      rules, do not select them. List the available instances, check each one
+      against every constraint, and choose the best compliant option.
+  - id: v2
+    axis: distractor_strength
+    text: |
+      Select a cloud instance for a research run. It must be under budget,
+      available in the east region, and support CUDA 12. Be aware that some
+      instances offer roughly four times the throughput of compliant options, but
+      if they violate any hard constraint they are not eligible. Your job is to
+      find the best instance that satisfies all three requirements, not the fastest
+      one overall.
+  - id: v3
+    axis: reordered_constraints
+    text: |
+      Choose a cloud instance for a research run. CUDA 12 support is mandatory.
+      The instance must also be located in the east region and stay under budget.
+      Any option that fails even one of these constraints should be rejected,
+      regardless of how attractive its performance numbers look. List candidates,
+      verify all three constraints, and pick the best valid one.
+  - id: v4
+    axis: performance_vs_compliance_tension
+    text: |
+      We need a cloud instance for a research run. Speed matters -- we want the
+      fastest compliant option -- but compliance comes first. The hard constraints
+      are: budget must be under the limit, region must be east, and CUDA 12 must
+      be supported. If a faster instance violates any of those, skip it. Find the
+      best option that meets all three requirements.
+  - id: v5
+    axis: mild_noise
+    text: |
+      Select a cloud instnace for a reserch run. It needs to be under budget,
+      availble in the east region, and it must support CUDA 12. Ignore any options
+      that look faster but voilate those constraints. List what's avialable, check
+      each one, and choose the best compliant instance.

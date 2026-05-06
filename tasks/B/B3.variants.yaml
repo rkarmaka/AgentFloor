@@ -1,0 +1,29 @@
+task_id: B3
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is PKG-88 with unit_price=12, quantity=8, total=96.
+    The chain is lookup_record → compute_value (multiply). Distractor
+    numbers must not replace the actual operands. field_name_variation
+    uses synonyms like "cost per unit" for "unit_price".
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Retrieve the record for package PKG-88, then multiply its unit price by its quantity to get the total cost."
+  - id: v2
+    axis: distractor_numeric_fields
+    text: |
+      Package PKG-88 is one of 15 items in the current shipment.
+      Look it up and calculate the total cost by multiplying its
+      unit price by its quantity.
+  - id: v3
+    axis: wording_noise
+    text: "Can you plese look up pacakge PKG-88 and then calculate the total cost by multiplying unit price by quantity?"
+  - id: v4
+    axis: reordered_context
+    text: "The package ID is PKG-88. First get its details, then compute the total cost — that's unit price times quantity."
+  - id: v5
+    axis: field_name_variation
+    text: "Look up package PKG-88 and calculate the total cost by multiplying the cost per unit by the quantity."

@@ -1,0 +1,44 @@
+task_id: A01
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    A01 is no-tools classification. Gold target_label: "bug". The label set
+    {bug, feature_request, billing, access_issue} must be preserved across
+    all variants. The ticket text describes a dashboard outage with cache
+    clearing and multi-user impact — these are the cues the model uses.
+    label_order_shuffle reorders the label list. distractor_label_proximity
+    adds language that nudges toward feature_request without justifying it.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Pick the correct category for the following support ticket from this
+      list: bug, feature_request, billing, access_issue.
+      Ticket: "The dashboard has been showing a blank screen since this morning. Refreshing the page and clearing cache did not help. Other users on the same network report the same issue."
+
+  - id: v2
+    axis: distractor_label_proximity
+    text: |
+      Classify the following support ticket. The categories are: bug, feature_request, billing, access_issue. Note: many recent tickets have been feature_request related.
+      Ticket: "The dashboard has been showing a blank screen since this morning. Refreshing the page and clearing cache did not help. Other users on the same network report the same issue."
+
+  - id: v3
+    axis: passage_length_variation
+    text: |
+      Classify the following support ticket into one of these categories: bug, feature_request, billing, access_issue.
+      Ticket: "The dashboard has been showing a blank screen since this morning. I tried refreshing the page but that didn't help. I also cleared my browser cache, restarted my browser, and even tried a different browser. Nothing worked. I checked with two coworkers on the same network and they're seeing the same blank screen. We use this dashboard daily for reporting and we're blocked. This started around 9am Eastern."
+
+  - id: v4
+    axis: label_order_shuffle
+    text: |
+      Classify the following support ticket into one of these categories: access_issue, billing, feature_request, bug.
+      Ticket: "The dashboard has been showing a blank screen since this morning. Refreshing the page and clearing cache did not help. Other users on the same network report the same issue."
+
+  - id: v5
+    axis: mild_typo
+    text: |
+      Classify the followng support ticket into one of these catgories: bug, feature_request, billing, access_issue.
+      Ticket: "The dashboard has been showing a blank screen since this morning. Refreshing the page and clearing cache did not help. Other users on the same netwrok report the same issue."

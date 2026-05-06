@@ -1,0 +1,87 @@
+task_id: E2
+fixture: fixtures/E/E2_pipeline_frameworks.yaml
+name: Choose now with future dependency in mind
+level: E
+category: long_horizon_planning
+subcategory: deferred_dependency_reasoning
+goal: Choose an option that remains feasible for a later required dependency.
+difficulty_rationale: Requires non-greedy planning and future-state reasoning.
+tools_available:
+  - lookup_record
+  - compare_records
+  - check_constraint
+  - submit_decision
+max_steps: 9
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: pipeline_framework_selection
+  user_intent: choose_globally_viable_framework
+gold_state:
+  current_requirement: throughput
+  future_requirement: reporting_plugin_support
+  tempting_local_optimum_id: FW-1
+  globally_valid_target_id: FW-3
+pass_conditions:
+  - future_dependency_considered
+  - greedy_invalid_option_avoided
+  - globally_valid_choice_selected
+  - valid_submission_accepted
+soft_metrics:
+  - constraint_preservation
+  - num_tool_calls
+  - reasoning_depth_proxy
+primary_failure_labels:
+  - greedy_local_optimization
+  - missed_future_dependency
+  - wrong_submission
+secondary_failure_labels:
+  - incomplete_comparison
+variant_axes:
+  - paraphrase
+  - future_dependency_wording
+  - distractor_framework_strength
+  - reordered_requirements
+  - mild ambiguity
+  - explicit_submission_instruction
+  - explicit_submission_instruction_v2
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_framework: FW-3
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_future_dependency_considered: true
+    require_greedy_option_avoided: true
+  submission_check:
+    required: true
+    expected_submission:
+      framework_id: FW-3
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - compare_records
+    - check_constraint
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: greedy_local_selection
+      invalid_option: FW-1
+    - type: skip_required_step
+      step: future_dependency_check
+      future_requirement: reporting_plugin_support
+
+notes_for_evaluator: Choice should be judged against both present and deferred requirements.
+example_prompt: Select a data pipeline framework for project P-Delta. It must meet current throughput needs, and it also has to support the reporting plugin required in the final deployment stage.
+expected_agent_behavior:
+  - inspect candidate frameworks
+  - compare on current requirement
+  - verify future plugin dependency
+  - avoid locally best but globally invalid choice
+  - submit correct framework

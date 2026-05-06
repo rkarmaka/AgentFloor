@@ -1,0 +1,26 @@
+task_id: A5
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is approve REQ-220. ID_format_noise uses "req-220"
+    (lowercase + dash). action_synonym replaces "approve" with synonyms
+    like "greenlight" or "authorize". The target record and action must
+    be preserved across all variants.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Please approve the request with ID REQ-220 by submitting an approval decision."
+  - id: v2
+    axis: ID_format_noise
+    text: "Submit an approval decision for request req-220."
+  - id: v3
+    axis: reordered_instruction
+    text: "For request REQ-220, I need you to submit a decision — the decision should be approval."
+  - id: v4
+    axis: action_synonym
+    text: "Greenlight request REQ-220 by submitting the appropriate decision."
+  - id: v5
+    axis: wording_variation
+    text: "Go ahead and authorize request REQ-220 — submit the decision to mark it as approved."

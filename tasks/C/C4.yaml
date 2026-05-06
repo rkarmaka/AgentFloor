@@ -1,0 +1,81 @@
+task_id: C4
+fixture: fixtures/C/C4_vendor_selection.yaml
+name: Primary candidate vs backup candidate
+level: C
+category: conditional_branching
+subcategory: primary_backup_selection
+goal: Use the preferred option unless it violates budget, then switch to backup.
+difficulty_rationale: Tests conditional switching under constraint check.
+tools_available:
+  - list_options
+  - check_constraint
+  - submit_decision
+max_steps: 6
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: vendor_selection
+  user_intent: choose_primary_or_backup
+gold_state:
+  preferred_vendor_id: V-1
+  backup_vendor_id: V-3
+  hard_constraint:
+    budget_limit: 5000
+  expected_decision: V-3
+pass_conditions:
+  - preferred_vendor_checked_first
+  - budget_constraint_evaluated
+  - correct_backup_switch_if_needed
+  - correct_submission_sent
+soft_metrics:
+  - branch_correctness
+  - constraint_preservation
+  - num_tool_calls
+primary_failure_labels:
+  - skipped_constraint_check
+  - constraint_violation
+  - wrong_branching
+secondary_failure_labels:
+  - non_optimal_selection
+variant_axes:
+  - paraphrase
+  - budget_expression_variation
+  - distractor_vendor_descriptions
+  - reordered_instructions
+  - mild_numerical_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_vendor: V-3
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_branch_correctness: true
+    require_preferred_checked_first: true
+  submission_check:
+    required: true
+    expected_submission:
+      vendor_id: V-3
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+    - check_constraint
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: skip_required_step
+      step: constraint_check_before_submission
+
+notes_for_evaluator: Failure if preferred is selected despite violating budget.
+example_prompt: Choose the preferred vendor, but if it violates the budget limit, switch to the approved backup vendor.
+expected_agent_behavior:
+  - list or identify preferred vendor
+  - check budget constraint
+  - use backup if preferred fails
+  - submit chosen vendor

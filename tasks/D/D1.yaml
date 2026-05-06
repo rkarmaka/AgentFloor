@@ -1,0 +1,79 @@
+task_id: D1
+fixture: fixtures/D/D1_supplier_selection.yaml
+name: Compare three candidates across two criteria
+level: D
+category: multi_source_reasoning
+subcategory: constrained_candidate_ranking
+goal: Choose the candidate that meets lead-time constraints and has the highest reliability.
+difficulty_rationale: Requires integration across multiple records and constraints.
+tools_available:
+  - lookup_record
+  - compare_records
+  - check_constraint
+max_steps: 8
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: supplier_selection
+  user_intent: compare_multiple_candidates
+gold_state:
+  candidate_ids:
+    - SUP-11
+    - SUP-12
+    - SUP-13
+  hard_constraint:
+    lead_time_days_max: 5
+  ranking_criterion: reliability
+  target_option_id: SUP-12
+pass_conditions:
+  - all_relevant_candidates_considered
+  - lead_time_constraint_applied
+  - highest_reliability_valid_candidate_selected
+soft_metrics:
+  - num_tool_calls
+  - redundant_calls
+  - constraint_preservation
+primary_failure_labels:
+  - incomplete_evidence_gathering
+  - constraint_violation
+  - wrong_candidate_selection
+secondary_failure_labels:
+  - premature_answer
+variant_axes:
+  - paraphrase
+  - candidate_order_shuffle
+  - distractor_supplier_text
+  - reordered_constraints
+  - mild_wording_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_supplier: SUP-12
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_all_candidates_inspected: true
+    require_constraint_applied: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+  optional_tools:
+    - compare_records
+    - check_constraint
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: skip_candidate_inspection
+      min_candidates: 3
+
+notes_for_evaluator: Should fail if best reliability candidate violates lead time and is still selected.
+example_prompt: Compare suppliers SUP-11, SUP-12, and SUP-13. Pick the one that satisfies the lead-time limit and has the highest reliability.
+expected_agent_behavior:
+  - gather candidate data
+  - apply lead-time filter
+  - compare reliability among valid candidates
+  - return best option

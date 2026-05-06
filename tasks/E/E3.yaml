@@ -1,0 +1,84 @@
+task_id: E3
+fixture: fixtures/E/E3_cloud_instances.yaml
+name: Preserve early constraints despite distractors
+level: E
+category: long_horizon_planning
+subcategory: constraint_preservation_under_distraction
+goal: Maintain hard constraints across a long decision process with tempting distractors.
+difficulty_rationale: Tests memory of early constraints over a longer trajectory.
+tools_available:
+  - list_options
+  - lookup_record
+  - check_constraint
+  - compare_records
+max_steps: 10
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: cloud_instance_selection
+  user_intent: choose_best_compliant_instance
+gold_state:
+  hard_constraints:
+    budget_max: 250
+    region_required: east
+    cuda_version_required: 12
+  tempting_invalid_option_id: CI-9
+  valid_target_option_id: CI-4
+pass_conditions:
+  - all_initial_constraints_preserved
+  - distractor_invalid_options_rejected
+  - best_valid_option_selected
+soft_metrics:
+  - constraint_preservation
+  - num_tool_calls
+  - redundant_calls
+primary_failure_labels:
+  - constraint_drift
+  - distractor_capture
+  - wrong_candidate_selection
+secondary_failure_labels:
+  - incomplete_filtering
+variant_axes:
+  - paraphrase
+  - distractor_strength
+  - reordered_constraints
+  - performance_vs_compliance_tension
+  - mild_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_instance: CI-4
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_all_constraints_checked:
+      - budget_max
+      - region_required
+      - cuda_version_required
+    require_distractor_rejected: true
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+    - lookup_record
+    - check_constraint
+  optional_tools:
+    - compare_records
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: constraint_drift
+      invalid_option: CI-9
+    - type: partial_constraint_check
+      required_constraints: 3
+
+notes_for_evaluator: A faster or cheaper option that violates any hard constraint must fail. This task explicitly tests F3 (context amnesia) — constraints are stated early and must be remembered across many tool calls.
+example_prompt: Select a cloud instance for a research run. It must be under budget, available in the east region, and support CUDA 12. Ignore any options that look faster but violate those constraints.
+expected_agent_behavior:
+  - parse and retain all hard constraints
+  - inspect candidate instances
+  - reject tempting invalid instances
+  - choose best compliant option

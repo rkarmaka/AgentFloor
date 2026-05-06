@@ -1,0 +1,69 @@
+task_id: E1
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is any valid bundle satisfying: budget <= 4000, vendor approved,
+    GPU+chassis compatible. Canonical bundle: V-Approved-2 / CH-4 / GPU-7.
+    Four valid bundles exist. All entity IDs, constraint thresholds, and
+    compatibility rules are preserved exactly across variants.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      We need to put together a procurement plan for a GPU workstation that fits
+      within the team budget. Only approved vendors may be used, and whichever GPU
+      you pick must be compatible with the chassis it goes into. List what is
+      available, verify the vendor is approved, confirm compatibility, and submit
+      the final bundle.
+  - id: v2
+    axis: component_order_variation
+    text: |
+      Plan a GPU workstation purchase under the team budget. Start by looking at
+      available chassis options, then find a GPU that is compatible with your chosen
+      chassis, and finally confirm the vendor is approved. The selected GPU must be
+      compatible with the chosen chassis, the vendor must be approved, and the total
+      cost must stay within budget. Submit the completed procurement bundle.
+  - id: v3
+    axis: distractor_high_performance_parts
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget. There
+      are some very high-end GPU and chassis combinations available that offer
+      excellent performance, but they may exceed the budget ceiling. The plan must
+      use only approved vendors, and the selected GPU must be compatible with the
+      chosen chassis. Focus on finding a valid bundle rather than chasing the
+      highest-performance option. Submit your final procurement plan.
+  - id: v4
+    axis: reordered_constraints
+    text: |
+      Build a procurement plan for a GPU workstation. The GPU you select must be
+      compatible with the chassis, the vendor supplying the parts must be on the
+      approved list, and the entire bundle must come in under the team budget.
+      Explore the available options, verify each constraint, and submit the final
+      procurement bundle.
+  - id: v5
+    axis: mild wording noise
+    text: |
+      We're loking to procure a GPU workstation setup under the team's budget
+      allocation. The procurment plan needs to use only approved vendors, and the
+      GPU selected has to be compatiable with the chosen chassis. Check what's
+      avaliable, verify the vendor and compatibility requirements, and submit the
+      final bundle.
+  - id: v6_explicit
+    axis: explicit_submission_instruction
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget. The
+      plan must use only approved vendors, and the selected GPU must be compatible
+      with the chosen chassis. After verifying all constraints, you MUST submit
+      your final procurement bundle using the submit_decision tool. Your task is
+      not complete until you have called submit_decision with your chosen vendor,
+      chassis, and GPU.
+  - id: v7_explicit
+    axis: explicit_submission_instruction_v2
+    text: |
+      Plan a GPU workstation procurement under budget. Only approved vendors are
+      allowed, and GPU-chassis compatibility is required. Explore options, verify
+      constraints, then finalize by calling submit_decision with the complete
+      bundle (vendor_id, chassis_id, gpu_id). Do not stop after just listing
+      options — you must submit a decision.

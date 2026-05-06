@@ -1,0 +1,37 @@
+task_id: A04
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is "mixed". Every variant must preserve both positive aspects
+    (build quality, battery life) and negative aspects (buggy software, app crashes,
+    Bluetooth drops). sentiment_balance_shift adds slightly more negative language
+    but NOT enough to flip to fully negative. distractor_strong_language adds
+    emphatic words that could bias a model but answer remains "mixed".
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      What is the overall sentiment of the following review? Choose one: positive, negative, mixed.
+      "For the price, the build quality really stands out, and I consistently get two full days of battery life with regular use. On the flip side, the software leaves a lot to be desired — the companion app crashes at least once daily, and Bluetooth connectivity drops without warning. I genuinely want to recommend this product, but the software issues hold me back."
+  - id: v2
+    axis: sentiment_balance_shift
+    text: |
+      What is the overall sentiment of the following review? Choose one: positive, negative, mixed.
+      "The build quality is honestly impressive for the price point, and the battery lasts a solid two days under normal use. However, the software is frustratingly buggy — the companion app crashes at least once a day, sometimes twice, and Bluetooth pairing drops randomly at the worst moments. The latest firmware update didn't fix any of it. I want to love this product but the software experience makes it genuinely hard to recommend right now."
+  - id: v3
+    axis: passage_length_variation
+    text: |
+      What is the overall sentiment of the following review? Choose one: positive, negative, mixed.
+      "Great build quality for the price. Battery lasts two days easily. But the app crashes daily and Bluetooth pairing drops randomly. Software needs serious work — hard to recommend as-is."
+  - id: v4
+    axis: label_order_shuffle
+    text: |
+      What is the overall sentiment of the following review? Choose one: negative, mixed, positive.
+      "The build quality is honestly impressive for the price point, and the battery lasts a solid two days under normal use. That said, the software is buggy — the companion app crashes at least once a day, and Bluetooth pairing drops randomly. I want to love this product but the software experience makes it hard to recommend right now."
+  - id: v5
+    axis: distractor_strong_language
+    text: |
+      What is the overall sentiment of the following review? Choose one: positive, negative, mixed.
+      "The build quality is honestly impressive for the price point — absolutely phenomenal craftsmanship, and the battery lasts an incredible two solid days under normal use. That said, the software is buggy — the companion app crashes at least once a day, which is utterly maddening, and Bluetooth pairing drops randomly. I want to love this product but the software experience makes it hard to recommend right now."

@@ -1,0 +1,46 @@
+task_id: D1
+domain: supplier_selection
+description: >
+  Supplier selection for D1. Tests multi-source synthesis with constrained ranking.
+  Three candidates. Constraint: lead_time_days <= 5. Among valid, pick highest reliability.
+  SUP-11 has the highest reliability but violates the lead time constraint.
+  SUP-12 satisfies the constraint AND has highest reliability among valid candidates.
+
+records:
+  SUP-11:
+    name: "Apex Components"
+    lead_time_days: 7
+    reliability: 96
+    cost_per_unit: 12.50
+  SUP-12:
+    name: "Bravo Manufacturing"
+    lead_time_days: 4
+    reliability: 91
+    cost_per_unit: 13.20
+  SUP-13:
+    name: "Crescent Industrial"
+    lead_time_days: 3
+    reliability: 84
+    cost_per_unit: 11.80
+
+constraints:
+  lead_time_max:
+    field: lead_time_days
+    operator: lte
+    value: 5
+
+ranking_criterion:
+  field: reliability
+  direction: max
+
+gold:
+  candidate_ids:
+    - SUP-11
+    - SUP-12
+    - SUP-13
+  invalid_due_to_constraint:
+    - SUP-11
+  valid_candidates:
+    - SUP-12
+    - SUP-13
+  target_record_id: SUP-12

@@ -1,0 +1,30 @@
+task_id: B5
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is OC-77 (Omega Connector), action is "process".
+    Search index has "Omega Connector" and "Omega" as valid queries.
+    OC-78 (Omega Connector Lite) is a distractor — variants must not
+    guide the model toward it. entity_alias adds "(sometimes called
+    just Omega)" as parenthetical context.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Search for the Omega Connector record and then submit it for processing."
+  - id: v2
+    axis: distractor_search_results
+    text: |
+      There are several products with similar names in the catalog.
+      Find the record for Omega Connector — not any lite or mini
+      variant — and submit it for processing.
+  - id: v3
+    axis: entity_alias
+    text: "Find the record for Omega Connector (sometimes called just Omega) and submit it for processing."
+  - id: v4
+    axis: reordered_instruction
+    text: "I need the Omega Connector submitted for processing. Search for its record first, then submit it."
+  - id: v5
+    axis: wording_variation
+    text: "Look up the Omega Connector entry and then send it off for processing."

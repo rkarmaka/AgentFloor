@@ -1,0 +1,30 @@
+task_id: D5
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: CN-5 is the valid connector. CN-2 is tempting but fails one
+    constraint. Both hard constraints (encrypted_transfer=true,
+    nightly_scheduling=true) must be preserved. Candidates are discovered
+    via search, so candidate_order_shuffle varies constraint listing order.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Select the most suitable connector for syncing datasets. The connector must support both encrypted transfer and nightly scheduling. Verify each candidate against these requirements before deciding."
+  - id: v2
+    axis: distractor_connector_strength
+    text: "Choose a connector for dataset sync that supports encrypted transfer and nightly scheduling. Some connectors boast excellent throughput and low latency, but compliance with both requirments is mandatory."
+  - id: v3
+    axis: reordered_constraints
+    text: "Find a connector that supports nightly scheduling and encrypted transfer for dataset sync. Both features are required; do not select a connector that is missing either one."
+  - id: v4
+    axis: wording_noise
+    text: |
+      Our data engineering team needs a connector for dataset synchronization.
+      The two non-negotiable requirments are: (1) encrypted transfer for security
+      compliance, and (2) nightly scheduling to match our ETL window. Pick the
+      best connector that satisfies both.
+  - id: v5
+    axis: candidate_order_shuffle
+    text: "Identify connectors available for dataset sync. For each one, check whether it supports encrypted transfer and nightly scheduling. Only select a connector that meets both criteria."

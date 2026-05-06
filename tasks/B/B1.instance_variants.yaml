@@ -1,0 +1,85 @@
+task_id: B1
+generator:
+  by: claude-opus-4-7-1m
+  generated_at: 2026-04-25T00:00:00+00:00
+  source: hand_crafted_for_input_instance_ablation
+  notes: |
+    Five instance variants for the input-instance ablation. Each preserves
+    the search → lookup chain template but varies the searched entity (and
+    therefore the resulting record_id and its status). All required search-
+    index entries were appended to /fixtures/B/B1_product_catalog.yaml
+    on 2026-04-25 — each instance's search query resolves to exactly one
+    record so the model isn't penalized for ambiguous search results.
+
+    Status mix: 2 active, 2 inactive, 1 deprecated. The canonical v0/v1-v5
+    targets "Alpha Sensor" → P104 (active) and is unaffected.
+
+    Prompt phrasing is held identical to the canonical template ("Find the
+    product record for <name> and tell me its current status.") so only
+    the entity varies.
+
+instances:
+  - id: i1
+    text: "Find the product record for Bravo Sensor and tell me its current status."
+    overrides:
+      gold_state:
+        query: "Bravo Sensor"
+        target_record_id: P208
+        target_value: active
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            record_id: P208
+            status: active
+
+  - id: i2
+    text: "Find the product record for Charlie Probe and tell me its current status."
+    overrides:
+      gold_state:
+        query: "Charlie Probe"
+        target_record_id: P310
+        target_value: deprecated
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            record_id: P310
+            status: deprecated
+
+  - id: i3
+    text: "Find the product record for Alpha Sensor v2 and tell me its current status."
+    overrides:
+      gold_state:
+        query: "Alpha Sensor v2"
+        target_record_id: P105
+        target_value: inactive
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            record_id: P105
+            status: inactive
+
+  - id: i4
+    text: "Find the product record for Delta Filter and tell me its current status."
+    overrides:
+      gold_state:
+        query: "Delta Filter"
+        target_record_id: P415
+        target_value: active
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            record_id: P415
+            status: active
+
+  - id: i5
+    text: "Find the product record for Echo Module and tell me its current status."
+    overrides:
+      gold_state:
+        query: "Echo Module"
+        target_record_id: P522
+        target_value: inactive
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            record_id: P522
+            status: inactive

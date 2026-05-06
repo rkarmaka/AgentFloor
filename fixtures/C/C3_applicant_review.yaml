@@ -1,0 +1,58 @@
+task_id: C3
+domain: applicant_review
+description: >
+  Applicant review for C3. Tests compute-then-threshold branching.
+  APP-55 has skill=70 and experience=98, weights are 0.6/0.4, weighted_score = 70*0.6 + 98*0.4 = 84.
+  Threshold is 80, so the model should approve.
+
+records:
+  APP-55:
+    name: "Maya Chen"
+    skill_score: 70
+    experience_score: 98
+    education_score: 85
+    submitted: "2026-03-22"
+  APP-56:
+    name: "Daniel Park"
+    skill_score: 60
+    experience_score: 65
+    education_score: 70
+    submitted: "2026-03-21"
+
+scoring_rule:
+  formula: weighted_score
+  weights:
+    skill_score: 0.6
+    experience_score: 0.4
+  threshold: 80
+  decision_rule:
+    above_threshold: approve
+    at_or_below_threshold: reject
+
+submission_validator:
+  required_fields: [action]
+  branch_rules:
+    - when:
+        record_id: APP-55
+        computed: weighted_score
+        operator: gt
+        value: 80
+      expected_action: approve
+    - when:
+        record_id: APP-55
+        computed: weighted_score
+        operator: lte
+        value: 80
+      expected_action: reject
+  on_match:
+    status: ok
+    submission_id: SUB-C3-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: wrong_decision
+
+gold:
+  target_record_id: APP-55
+  expected_score: 84
+  expected_decision: approve

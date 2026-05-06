@@ -1,0 +1,79 @@
+# Input-instance ablation — Step 4 of the NeurIPS execution guide
+#
+# Pairs with the existing v0-v5 prompt-variant runs to produce the headline
+# TCR-prompt vs TCR-instance comparison. Answers the reviewer attack:
+#   "Your benchmark measures robustness to prompt paraphrase on a fixed
+#    instance, not generalization across the task family."
+#
+# 5 instance variants (i1..i5) authored per task in
+# tasks/{A,B,C,E}/{A1,B1,C1,E1}.instance_variants.yaml.
+# Each instance overrides gold_state and oracle_evaluator.final_answer_check
+# to point at a different concrete record / bundle / branch target while
+# preserving the task template (tools_available, max_steps, must_call_tools).
+#
+# Pre-flight required: runs/run_instance_preflight.py asserted all 20
+# instances solve end-to-end on 2026-04-25 before this sweep was authored.
+#
+# Models — vertical slice across the parameter range, deliberately spanning
+# two model families and the frontier:
+#   Frontier:    gpt-5-mini, gpt-5-nano  (anchor the ceiling)
+#   Best SLM:    gemma4:26b              (best SLM per F-007)
+#   Mid SLM:     gpt-oss:20b             (different family from gemma; tests
+#                                          the gap isn't a single-family artefact)
+#   Smallest:    granite4:3b             (smallest SLM that clears A0/A on
+#                                          prompt variants — probes whether
+#                                          instance variation breaks the floor
+#                                          even at the smallest viable size)
+#
+# Sweep size: 5 models x 4 tasks x 5 instances x 3 runs = 300 runs.
+# Estimated cost: ~$1-2 OpenAI (frontier 120 runs at <$0.02/run) plus
+# Ollama wall time (180 runs against the local Tailscale server).
+#
+# Usage:
+#   python runs/run_sweep.py --config sweep_configs/instance_ablation.yaml
+#
+# Or one model at a time (recommended for first pass — easier to spot
+# infrastructure issues before sinking the full ~$2):
+#   python runs/run_sweep.py --config sweep_configs/instance_ablation.yaml \
+#     --models granite4:3b
+#   python runs/run_sweep.py --config sweep_configs/instance_ablation.yaml \
+#     --models gpt-5-nano
+
+sweep_name: instance_ablation
+backend: ollama
+base_url: http://localhost:11434/v1
+results_dir: results
+max_output_tokens: 2048
+probe_before_run: false
+auto_pull: false
+auto_stop: false
+
+models:
+  - name: gemma4:26b
+    params_b: 26.0
+    tier: 20b27b
+    notes: "Best SLM per F-007 (58% TCR overall, 100% A0 unstubbed)"
+
+  - name: gpt-oss:20b
+    params_b: 20.0
+    tier: 20b27b
+    notes: "Different family from gemma — checks gap isn't gemma-specific"
+
+  - name: granite4:3b
+    params_b: 3.0
+    tier: 3b4b
+    notes: "Smallest viable SLM (clears A0/A on prompt variants)"
+
+  - name: gpt-5-mini
+    backend: openai
+    tier: frontier
+    notes: "OpenAI frontier — anchors the ceiling. Requires OPENAI_API_KEY."
+
+  - name: gpt-5-nano
+    backend: openai
+    tier: frontier
+    notes: "Smaller frontier; cheap anchor. Requires OPENAI_API_KEY."
+
+tasks: [A1, B1, C1, E1]
+variants: [i1, i2, i3, i4, i5]
+runs_per_combo: 3

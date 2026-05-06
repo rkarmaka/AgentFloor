@@ -1,0 +1,106 @@
+task_id: E5
+fixture: fixtures/E/E5_service_deployment.yaml
+name: Recovery with downstream constraint impact
+level: E
+category: long_horizon_planning
+subcategory: planning_dependent_recovery
+goal: Complete a deployment workflow where a mid-task failure requires choosing between two recovery paths, each constraining the final submission.
+difficulty_rationale: Combines long-horizon planning with recovery — the recovery choice propagates constraints to later steps, making it a planning decision rather than a simple retry.
+tools_available:
+  - lookup_record
+  - check_constraint
+  - submit_decision
+max_steps: 12
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: service_deployment
+  user_intent: complete_deployment_with_recovery
+gold_state:
+  workflow_steps:
+    - retrieve_service_config
+    - select_component_version
+    - verify_compatibility
+    - choose_deployment_region
+    - submit_deployment
+  failure_point: verify_compatibility
+  recovery_paths:
+    path_a:
+      action: downgrade_to_v2.1
+      constraint: region_must_be_east
+      valid_region: region-east
+    path_b:
+      action: upgrade_to_v3.0
+      constraint: region_must_be_west
+      valid_region: region-west
+  either_path_valid: true
+pass_conditions:
+  - compatibility_failure_detected
+  - recovery_path_chosen
+  - downstream_constraint_respected
+  - final_region_consistent_with_recovery_path
+  - valid_submission_accepted
+soft_metrics:
+  - recovery_success
+  - constraint_preservation
+  - workflow_completeness
+  - num_tool_calls
+  - num_steps
+primary_failure_labels:
+  - recovery_failure
+  - inconsistent_recovery_and_region
+  - constraint_drift
+  - invalid_submission
+secondary_failure_labels:
+  - premature_termination
+  - workflow_incompletion
+variant_axes:
+  - paraphrase
+  - recovery_path_description_order
+  - distractor_deployment_options
+  - reordered_workflow_steps
+  - mild_wording_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: any_valid_solution
+    valid_solutions:
+      - recovery_path: path_a
+        component_version: v2.1
+        deployment_region: region-east
+      - recovery_path: path_b
+        component_version: v3.0
+        deployment_region: region-west
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_recovery: true
+    require_consistency_between_recovery_and_submission: true
+  submission_check:
+    required: true
+    require_submission_accepted: true
+    require_region_matches_recovery_path: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - check_constraint
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_after_error
+      without_retry: true
+    - type: inconsistent_recovery_and_submission
+
+notes_for_evaluator: Both recovery paths are valid. The test is consistency — if the model chooses path A (downgrade to v2.1), the final region must be region-east. If it chooses path B (upgrade to v3.0), the final region must be region-west. Mixing paths fails.
+example_prompt: Deploy service SV-9. Retrieve the config, select the component version, verify compatibility, choose the deployment region, and submit. If compatibility fails, you can either downgrade to v2.1 (which only works in region-east) or upgrade to v3.0 (which only works in region-west). Make sure your final deployment region matches your recovery choice.
+expected_agent_behavior:
+  - retrieve service config
+  - select component version
+  - attempt compatibility check (fails)
+  - inspect the error
+  - choose a recovery path (A or B)
+  - select the region consistent with that path
+  - submit final deployment

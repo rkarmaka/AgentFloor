@@ -1,0 +1,56 @@
+task_id: E5
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Both recovery paths are valid. CRITICAL constraints preserved exactly:
+    v2.1 -> region-east, v3.0 -> region-west. The model must choose one
+    recovery path and then select the matching region. Mixing paths fails.
+    Service ID SV-9 is preserved in all variants.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Deploy service SV-9. Look up its configuration, pick a component version,
+      and verify compatibility. Then choose the deployment region and submit. If
+      the compatibility check fails, you have two recovery options: downgrade to
+      v2.1 (which only works in region-east) or upgrade to v3.0 (which only works
+      in region-west). Whichever recovery path you take, the final deployment
+      region must match that choice.
+  - id: v2
+    axis: recovery_path_description_order
+    text: |
+      Deploy service SV-9. Retrieve the config, select the component version,
+      verify compatibility, choose the deployment region, and submit. If
+      compatibility fails, you have two recovery options: you can upgrade to v3.0
+      (which only works in region-west) or downgrade to v2.1 (which only works in
+      region-east). Make sure your final deployment region matches your recovery
+      choice.
+  - id: v3
+    axis: distractor_deployment_options
+    text: |
+      Deploy service SV-9. Retrieve the config, select the component version,
+      verify compatibility, choose the deployment region, and submit. There are
+      several regions and versions available, but not all combinations are valid.
+      If compatibility fails, your only two recovery options are: downgrade to v2.1
+      (which only works in region-east) or upgrade to v3.0 (which only works in
+      region-west). Other region or version combinations will not resolve the
+      failure. Make sure your final deployment region matches your recovery choice.
+  - id: v4
+    axis: reordered_workflow_steps
+    text: |
+      You need to deploy service SV-9. The workflow involves choosing a deployment
+      region, retrieving the service config, selecting a component version,
+      verifying compatibility, and submitting. If the compatibility verification
+      fails, you can either downgrade to v2.1 (which only works in region-east)
+      or upgrade to v3.0 (which only works in region-west). Your final deployment
+      region must be consistent with whichever recovery path you choose.
+  - id: v5
+    axis: mild_wording_noise
+    text: |
+      Deploy servce SV-9. Retreive the config, select the componet version, verify
+      compatability, choose the deployment region, and submit. If compatability
+      fails, you can either downgrade to v2.1 (which only works in region-east) or
+      upgrade to v3.0 (which only works in region-west). Make sure your final
+      deploymnet region matches your recovery choice.

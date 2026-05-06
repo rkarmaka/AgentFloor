@@ -1,0 +1,70 @@
+task_id: D5
+domain: connector_selection
+description: >
+  Connector selection for D5. Tests backtracking after contradiction.
+  CN-2 looks tempting (highest throughput, well-reviewed) but lacks encrypted_transfer.
+  CN-5 satisfies both hard constraints (encrypted_transfer + nightly_scheduling).
+
+records:
+  CN-1:
+    name: "Basic Sync"
+    throughput_mbps: 100
+    encrypted_transfer: true
+    nightly_scheduling: false
+    review_score: 3.8
+  CN-2:
+    name: "TurboFlow"
+    throughput_mbps: 850
+    encrypted_transfer: false
+    nightly_scheduling: true
+    review_score: 4.7
+  CN-3:
+    name: "DataBridge"
+    throughput_mbps: 320
+    encrypted_transfer: true
+    nightly_scheduling: false
+    review_score: 4.0
+  CN-4:
+    name: "NightHawk"
+    throughput_mbps: 200
+    encrypted_transfer: false
+    nightly_scheduling: true
+    review_score: 4.2
+  CN-5:
+    name: "SecureSync Pro"
+    throughput_mbps: 500
+    encrypted_transfer: true
+    nightly_scheduling: true
+    review_score: 4.4
+
+search_index:
+  "connector":
+    - CN-1
+    - CN-2
+    - CN-3
+    - CN-4
+    - CN-5
+  "secure connector":
+    - CN-1
+    - CN-3
+    - CN-5
+
+constraints:
+  encrypted_transfer_required:
+    field: encrypted_transfer
+    operator: eq
+    value: true
+  nightly_scheduling_required:
+    field: nightly_scheduling
+    operator: eq
+    value: true
+
+gold:
+  hard_constraints:
+    - encrypted_transfer
+    - nightly_scheduling
+  tempting_invalid_id: CN-2
+  tempting_invalid_reason: missing_encrypted_transfer
+  valid_candidates:
+    - CN-5
+  target_record_id: CN-5

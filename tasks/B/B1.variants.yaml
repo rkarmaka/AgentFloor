@@ -1,0 +1,42 @@
+task_id: B1
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Each variant exemplifies one axis from task.variant_axes while preserving
+    the gold answer reachability (target_record_id: P104, status: active).
+    The fixture's search_index has 'Alpha Sensor' as a registered exact
+    match returning P104. The fixture also contains P105 ('Alpha Sensor v2',
+    inactive) which is a built-in distractor — variants don't need to
+    introduce additional distractors in prose because the search results
+    themselves carry them. The entity_alias variant adds the 'Alpha Sensor'
+    canonical name verbatim while surrounding it with looser language.
+    Typos are in surrounding words only.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Locate the Alpha Sensor product record and report its current status."
+
+  - id: v2
+    axis: distractor_search_results
+    text: |
+      Find the Alpha Sensor product record (note: there are several
+      sensor entries in the catalog with similar names — make sure you
+      grab the right one) and tell me its current status.
+
+  - id: v3
+    axis: entity_alias
+    text: |
+      Pull the catalog record for the product known as Alpha Sensor and
+      report its current status. Internal teams sometimes shorten the
+      name to just "Alpha" but the catalog lists it under the full name.
+
+  - id: v4
+    axis: reordered_instruction
+    text: "Tell me the current status of the Alpha Sensor product. You'll need to search for the record first, then look up its details."
+
+  - id: v5
+    axis: mild_typo
+    text: "Find the prodct record for Alpha Sensor and tell me its currrent status."

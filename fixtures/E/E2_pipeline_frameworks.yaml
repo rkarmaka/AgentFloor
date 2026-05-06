@@ -1,0 +1,55 @@
+task_id: E2
+domain: pipeline_framework_selection
+description: >
+  Pipeline framework for E2. Tests deferred dependency reasoning.
+  FW-1 has the highest throughput but lacks the reporting plugin needed in the final stage.
+  FW-3 has acceptable throughput AND supports the reporting plugin.
+  A greedy model picks FW-1 (locally best); the correct answer is FW-3 (globally feasible).
+
+records:
+  FW-1:
+    name: "BlazeFlow"
+    throughput_mbps: 950
+    reporting_plugin_support: false
+    cost_per_month: 280
+    learning_curve: low
+  FW-2:
+    name: "SteadyStream"
+    throughput_mbps: 600
+    reporting_plugin_support: false
+    cost_per_month: 200
+    learning_curve: medium
+  FW-3:
+    name: "FlexPipe"
+    throughput_mbps: 720
+    reporting_plugin_support: true
+    cost_per_month: 240
+    learning_curve: medium
+
+constraints:
+  current_throughput_min:
+    field: throughput_mbps
+    operator: gte
+    value: 700
+  future_reporting_plugin_required:
+    field: reporting_plugin_support
+    operator: eq
+    value: true
+
+submission_validator:
+  required_fields: [framework_id]
+  expected_framework_id: FW-3
+  on_match:
+    status: ok
+    submission_id: SUB-E2-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: wrong_framework
+
+gold:
+  current_requirement: throughput_mbps_gte_700
+  future_requirement: reporting_plugin_support
+  tempting_local_optimum: FW-1
+  tempting_local_reason: highest_throughput_but_no_reporting_plugin
+  globally_valid_target: FW-3

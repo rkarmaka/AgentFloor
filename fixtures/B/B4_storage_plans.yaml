@@ -1,0 +1,44 @@
+task_id: B4
+domain: storage_plans
+description: >
+  Storage plans for B4. Tests list_options → lookup chaining.
+  Model lists plans first, then looks up SP-3 to report capacity and price.
+
+options:
+  storage_plans:
+    - id: SP-1
+      name: "Starter"
+    - id: SP-2
+      name: "Standard"
+    - id: SP-3
+      name: "Pro"
+    - id: SP-4
+      name: "Enterprise"
+
+records:
+  SP-1:
+    name: "Starter"
+    capacity_gb: 100
+    monthly_price: 15
+    sla: "99.0%"
+  SP-2:
+    name: "Standard"
+    capacity_gb: 250
+    monthly_price: 30
+    sla: "99.5%"
+  SP-3:
+    name: "Pro"
+    capacity_gb: 500
+    monthly_price: 45
+    sla: "99.9%"
+  SP-4:
+    name: "Enterprise"
+    capacity_gb: 1000
+    monthly_price: 90
+    sla: "99.95%"
+
+gold:
+  target_option_id: SP-3
+  expected_fields:
+    capacity_gb: 500
+    monthly_price: 45

@@ -1,0 +1,71 @@
+task_id: A3
+fixture: null
+name: Compute a value from given inputs
+level: A
+category: single_tool_computation
+subcategory: direct_computation
+goal: Call a compute tool with provided inputs and report the result.
+difficulty_rationale: Single tool call — tests whether the model can pass numeric arguments and an operation to a compute tool.
+tools_available:
+  - compute_value
+max_steps: 2
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: order_processing
+  user_intent: calculate_total
+  given_values:
+    unit_price: 12
+    quantity: 8
+  operation: multiply
+gold_state:
+  target_value: 96
+pass_conditions:
+  - correct_tool_called
+  - correct_inputs_passed
+  - correct_operation_passed
+  - correct_result_reported
+  - within_step_budget
+soft_metrics:
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_argument
+  - tool_call_syntax_error
+  - computation_error
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - distractor_numeric_fields
+  - wording_noise
+  - operation_synonym
+  - reordered_context
+
+oracle_evaluator:
+  final_answer_check:
+    type: numeric_match
+    expected_fields:
+      total: 96
+    tolerance: 0
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - compute_value
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: All inputs are given in the prompt. The model just needs to pass them correctly to compute_value. No retrieval needed.
+example_prompt: Calculate the total cost by multiplying unit price 12 by quantity 8 using the compute tool.
+expected_agent_behavior:
+  - call compute_value with inputs 12, 8 and operation multiply
+  - report the result

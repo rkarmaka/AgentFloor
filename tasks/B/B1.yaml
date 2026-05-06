@@ -1,0 +1,73 @@
+task_id: B1
+fixture: fixtures/B/B1_product_catalog.yaml
+name: Search then look up details
+level: B
+category: sequential_chaining
+subcategory: search_then_lookup
+goal: Search for a record by name, then look up the found record and report its status.
+difficulty_rationale: Two-step linear chain — model must carry the ID from search results into a lookup call.
+tools_available:
+  - search_records
+  - lookup_record
+max_steps: 4
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: product_catalog
+  user_intent: find_and_inspect_record
+gold_state:
+  query: Alpha Sensor
+  target_record_id: P104
+  target_field: status
+  target_value: active
+pass_conditions:
+  - correct_record_found_via_search
+  - correct_id_passed_to_lookup
+  - correct_status_reported
+  - within_step_budget
+soft_metrics:
+  - num_steps
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - search_selection_error
+  - wrong_id_forwarded
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - distractor_search_results
+  - entity_alias
+  - reordered_instruction
+  - mild_typo
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      record_id: P104
+      status: active
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+    - lookup_record
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: Model must chain search → lookup. Skipping search and guessing the ID fails the trajectory check.
+example_prompt: Find the product record for Alpha Sensor and tell me its current status.
+expected_agent_behavior:
+  - call search_records with "Alpha Sensor"
+  - extract P104 from results
+  - call lookup_record with P104
+  - report the status field
