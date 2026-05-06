@@ -1,0 +1,53 @@
+task_id: E4
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is EP-6. The audit-overrides-profile precedence rule must
+    appear in every variant. The full pipeline has 6 stages: search, verify,
+    resolve conflict (audit wins), score, compliance check, submit. All entity
+    IDs and the weighted_score rule are preserved.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Find the best deployment partner for the new edge rollout. Search for
+      eligible partners, look up their cost and reliability data, resolve any
+      discrepancy between profile and audit records by trusting the audit record,
+      compute a final weighted score for each candidate, verify that the chosen
+      partner meets compliance requirements, and submit your selection.
+  - id: v2
+    axis: distractor_candidates
+    text: |
+      Choose the best deployment partner for the new edge rollout. There are many
+      promising-looking partners in the pool, so make sure you evaluate them
+      carefully rather than picking the first good one. Search for eligible
+      partners, verify cost and reliability, resolve any conflict between profile
+      and audit records using the audit record, compute the final weighted score,
+      ensure the partner meets compliance, and submit the final selection.
+  - id: v3
+    axis: reordered_subgoals
+    text: |
+      We need to select a deployment partner for the new edge rollout. Start by
+      ensuring compliance eligibility, then search for eligible partners. Verify
+      each candidate's cost and reliability, and if profile and audit records
+      disagree, use the audit record as the authoritative source. Compute the
+      final weighted score for qualifying partners and submit the best one.
+  - id: v4
+    axis: conflicting_field_strength
+    text: |
+      Choose the best deployment partner for the new edge rollout. Search for
+      eligible partners and verify their cost and reliability. Pay close attention
+      to cases where a partner's profile record and audit record show different
+      values -- the audit record is the authoritative source and must override the
+      profile in all such conflicts. Compute the final weighted score using the
+      corrected data, confirm the partner meets compliance, and submit your final
+      selection.
+  - id: v5
+    axis: mild_wording_noise
+    text: |
+      Pick the best deploymnet partner for the new edge rollout. Serach for
+      eligible partners, verify cost and reliabilty, resolve any conflict between
+      profile and audit records using the audit record, compute the final weighted
+      score, ensure the partner meets complience, and submit the final selection.

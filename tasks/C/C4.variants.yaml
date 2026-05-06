@@ -1,0 +1,25 @@
+task_id: C4
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: V-1 is preferred but exceeds budget (limit 5000), so the
+    correct decision is V-3 (backup). All variants must preserve V-1, V-3,
+    and the budget limit of 5000. Numerical noise uses non-budget numbers.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Select the preferred vendor for this procurement. However, if the preferred vendor's cost exceeds the budget limit, fall back to the approved backup vendor instead."
+  - id: v2
+    axis: budget_expression_variation
+    text: "Go with the preferred vendor unless their pricing breaches the $5,000 cap. In that case, switch to the approved backup vendor."
+  - id: v3
+    axis: distractor_vendor_descriptions
+    text: "Choose the preferred vendor. Note that vendors are rated on reliability (e.g. 4.8 out of 5) and delivery speed, but the deciding factor here is budget compliance. If the preferred vendor violates the budget limit, use the approved backup vendor."
+  - id: v4
+    axis: reordered_instructions
+    text: "First check whether the preferred vendor stays within the budget limit. If it does, select it. If it does not, switch to the approved backup vendor and submit that choice."
+  - id: v5
+    axis: mild_numerical_noise
+    text: "We have 3 vendors on the shortlist with ratings between 3.5 and 4.9. Choose the preferred vendor, but if it violates the budget limit of under five thousand dollars, switch to the aproved backup vendor."

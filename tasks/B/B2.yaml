@@ -1,0 +1,71 @@
+task_id: B2
+fixture: fixtures/B/B2_supplier_registry.yaml
+name: Look up then extract attribute
+level: B
+category: sequential_chaining
+subcategory: lookup_then_attribute
+goal: Look up a record by ID, then extract a specific attribute from it.
+difficulty_rationale: Two-step chain — model must retrieve the record first, then request a specific field from it.
+tools_available:
+  - lookup_record
+  - get_attribute
+max_steps: 4
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: supplier_registry
+  user_intent: inspect_supplier_attribute
+gold_state:
+  target_record_id: SUP-104
+  target_attribute: reliability_score
+  target_value: 92
+pass_conditions:
+  - correct_record_retrieved
+  - correct_attribute_requested
+  - correct_value_reported
+  - within_step_budget
+soft_metrics:
+  - num_steps
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_record_id
+  - wrong_attribute_request
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - attribute_name_rewording
+  - distractor_context
+  - reordered_instruction
+  - identifier_formatting_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: numeric_match
+    expected_fields:
+      reliability_score: 92
+    tolerance: 0
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+  optional_tools:
+    - get_attribute
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: If lookup_record returns the attribute directly, get_attribute is optional. The chain is still tested via lookup → read output.
+example_prompt: Look up supplier SUP-104 and tell me its reliability score.
+expected_agent_behavior:
+  - call lookup_record with SUP-104
+  - call get_attribute for reliability_score (or read from lookup output)
+  - report the value

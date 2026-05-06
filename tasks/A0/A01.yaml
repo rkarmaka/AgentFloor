@@ -1,0 +1,72 @@
+task_id: A01
+fixture: null
+name: Classify record by description
+level: A0
+category: classification
+subcategory: single_label_classification
+goal: Read a short record description and assign the correct category label.
+difficulty_rationale: Pure NLU — tests whether the model can follow a classification instruction with no tool use.
+tools_available: []
+max_steps: 1
+allowed_repair_turns: 0
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: support_ticket
+  user_intent: classify_ticket
+  passage: >
+    The dashboard has been showing a blank screen since this morning.
+    Refreshing the page and clearing cache did not help. Other users
+    on the same network report the same issue.
+  valid_labels:
+    - bug
+    - feature_request
+    - billing
+    - access_issue
+gold_state:
+  target_label: bug
+pass_conditions:
+  - correct_label_assigned
+  - within_step_budget
+soft_metrics:
+  - response_length
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_label
+  - no_label_provided
+  - hallucinated_label
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - distractor_label_proximity
+  - passage_length_variation
+  - label_order_shuffle
+  - mild_typo
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      label: bug
+  trajectory_check:
+    require_step_budget: true
+
+trace_requirements:
+  must_call_tools: []
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: label_not_in_valid_set
+      valid_set: [bug, feature_request, billing, access_issue]
+
+notes_for_evaluator: Answer must be one of the provided labels. Explanation is optional but label must be present.
+example_prompt: >
+  Classify the following support ticket into one of these categories: bug, feature_request, billing, access_issue.
+
+  Ticket: "The dashboard has been showing a blank screen since this morning. Refreshing the page and clearing cache did not help. Other users on the same network report the same issue."
+expected_agent_behavior:
+  - read the passage
+  - match to correct label
+  - return the label

@@ -1,0 +1,46 @@
+task_id: C5
+domain: ticket_triage
+description: >
+  Ticket triage for C5. Tests severity-based routing.
+  T-908 has severity=critical, so the model should call submit_decision with action=escalate.
+
+records:
+  T-908:
+    title: "Production database outage"
+    severity: critical
+    reporter: "ops-oncall"
+    affected_services: ["api", "checkout", "auth"]
+    opened_at: "2026-04-09T22:14:00Z"
+  T-909:
+    title: "Minor UI rendering issue"
+    severity: low
+    reporter: "qa-team"
+    affected_services: ["dashboard"]
+    opened_at: "2026-04-09T15:00:00Z"
+
+submission_validator:
+  required_fields: [action]
+  branch_rules:
+    - when:
+        record_id: T-908
+        field: severity
+        equals: critical
+      expected_action: escalate
+    - when:
+        record_id: T-908
+        field: severity
+        not_equals: critical
+      expected_action: keep_in_queue
+  on_match:
+    status: ok
+    submission_id: SUB-C5-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: wrong_routing
+
+gold:
+  target_record_id: T-908
+  decision_attribute: severity
+  canonical_value: critical
+  expected_action: escalate

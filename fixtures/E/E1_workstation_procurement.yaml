@@ -1,0 +1,161 @@
+task_id: E1
+domain: workstation_procurement
+description: >
+  Workstation procurement for E1. Tests long-horizon constrained planning.
+  Three constraints: budget <= 4000, vendor must be approved, GPU must be
+  compatible with chassis.
+
+  Any bundle satisfying all three constraints is accepted (allow_any_valid_bundle).
+  The canonical bundle is V-Approved-2 + CH-4 + GPU-7 (total 3850), but
+  the following equivalent bundles also pass:
+    - V-Approved-1 + CH-4 + GPU-7 (total 3900)
+    - V-Approved-2 + CH-5 + GPU-9 (total 1700)
+    - V-Approved-1 + CH-5 + GPU-9 (total 1750)
+
+  Distractors:
+    - V-Discount-3 is unapproved (tempting on cost)
+    - GPU-8 exceeds the budget once paired with any chassis
+    - GPU-9 is only compatible with CH-5 (not CH-4)
+
+options:
+  vendors:
+    - id: V-Approved-1
+      name: "TitanGear Inc."
+    - id: V-Approved-2
+      name: "ProBuilds Co."
+    - id: V-Discount-3
+      name: "BargainTech"
+    # Vendor below appended 2026-04-25 for input-instance ablation. A third
+    # approved vendor expands the valid-bundle pool so 5 distinct bundles
+    # (each with a different vendor/chassis/GPU combination) can be the
+    # canonical answer for instance variants i1-i5 without colliding with
+    # the v0 canonical (V-Approved-2 + CH-4 + GPU-7).
+    - id: V-Approved-3
+      name: "MetalForge Systems"
+  chassis:
+    - id: CH-4
+      name: "ATX Workstation"
+    - id: CH-5
+      name: "Mini Tower"
+  gpus:
+    - id: GPU-7
+      name: "NV-A4000"
+    - id: GPU-8
+      name: "NV-A5000"
+    - id: GPU-9
+      name: "NV-Mobile-T1000"
+
+records:
+  V-Approved-1:
+    name: "TitanGear Inc."
+    approved: true
+    base_fee: 200
+  V-Approved-2:
+    name: "ProBuilds Co."
+    approved: true
+    base_fee: 150
+  V-Discount-3:
+    name: "BargainTech"
+    approved: false
+    base_fee: 80
+  V-Approved-3:
+    name: "MetalForge Systems"
+    approved: true
+    base_fee: 180
+  CH-4:
+    name: "ATX Workstation"
+    price: 700
+    form_factor: ATX
+  CH-5:
+    name: "Mini Tower"
+    price: 450
+    form_factor: mini-itx
+  GPU-7:
+    name: "NV-A4000"
+    price: 3000
+    form_factor_compat: [ATX]
+  GPU-8:
+    name: "NV-A5000"
+    price: 4200
+    form_factor_compat: [ATX]
+  GPU-9:
+    name: "NV-Mobile-T1000"
+    price: 1100
+    form_factor_compat: [mini-itx]
+
+vendor_approvals:
+  V-Approved-1: true
+  V-Approved-2: true
+  V-Discount-3: false
+  V-Approved-3: true  # appended 2026-04-25 for instance ablation
+
+compatibility:
+  CH-4:
+    compatible_gpus: [GPU-7, GPU-8]
+  CH-5:
+    compatible_gpus: [GPU-9]
+
+constraints:
+  # Per-record constraint: the model can call check_constraint on individual
+  # vendor records to verify approval status before composing a bundle.
+  vendor_must_be_approved:
+    field: approved
+    operator: eq
+    value: true
+
+submission_validator:
+  required_fields: [vendor_id, chassis_id, gpu_id]
+  # Any bundle that passes all bundle_validator checks is accepted.
+  # expected_bundle below is the canonical solution kept for documentation;
+  # the equivalence rule is "all bundle_validator checks pass".
+  allow_any_valid_bundle: true
+  # Bundle-level checks run when the model submits its final bundle.
+  # The model is expected to plan the bundle and submit; bundle_validator
+  # enforces total cost, vendor approval, and GPU/chassis compatibility.
+  bundle_validator:
+    compute:
+      total_cost:
+        formula: sum
+        inputs:
+          - {record_id_from: vendor_id,  field: base_fee}
+          - {record_id_from: chassis_id, field: price}
+          - {record_id_from: gpu_id,     field: price}
+    checks:
+      - description: "Total cost must be within budget (4000)"
+        computed: total_cost
+        operator: lte
+        value: 4000
+      - description: "Vendor must be approved"
+        lookup_record_from: vendor_id
+        field: approved
+        operator: eq
+        value: true
+      - description: "GPU must be compatible with chassis"
+        rule: gpu_in_chassis_compatible_list
+        gpu_from: gpu_id
+        chassis_from: chassis_id
+  expected_bundle:
+    vendor_id: V-Approved-2
+    chassis_id: CH-4
+    gpu_id: GPU-7
+  on_match:
+    status: ok
+    submission_id: SUB-E1-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: invalid_bundle
+
+gold:
+  canonical_bundle:
+    vendor_id: V-Approved-2
+    chassis_id: CH-4
+    gpu_id: GPU-7
+    total_cost: 3850
+  # Equivalence rule: any bundle satisfying all bundle_validator checks
+  equivalence_rule: bundle_validator_passes
+  all_valid_bundles:
+    - {vendor_id: V-Approved-2, chassis_id: CH-4, gpu_id: GPU-7, total_cost: 3850}
+    - {vendor_id: V-Approved-1, chassis_id: CH-4, gpu_id: GPU-7, total_cost: 3900}
+    - {vendor_id: V-Approved-2, chassis_id: CH-5, gpu_id: GPU-9, total_cost: 1700}
+    - {vendor_id: V-Approved-1, chassis_id: CH-5, gpu_id: GPU-9, total_cost: 1750}

@@ -1,0 +1,37 @@
+# NVIDIA NIM-hosted SLM inference
+# Requires NVIDIA_API_KEY environment variable.
+#
+# Usage:
+#   python runs/run_sweep.py --config sweep_configs/nim_slm.yaml
+#
+# NIM manages its own model lifecycle; set auto_pull/auto_stop to false.
+
+sweep_name: nim_slm
+backend: nim
+base_url: https://integrate.api.nvidia.com/v1
+results_dir: results
+max_output_tokens: 1024
+auto_pull: false
+auto_stop: false
+compat_out: results/nim_compatibility.yaml
+
+models:
+  - name: meta/llama-3.1-8b-instruct
+    params_b: 8.0
+    tier: 7b9b
+  - name: nvidia/nvidia-nemotron-nano-9b-v2
+    params_b: 9.0
+    tier: 7b9b
+  - name: microsoft/phi-3-mini-128k-instruct
+    params_b: 3.8
+    tier: 3b4b
+  - name: microsoft/phi-3-medium-128k-instruct
+    params_b: 14.0
+    tier: 12b14b
+  - name: qwen/qwen2.5-7b-instruct
+    params_b: 7.0
+    tier: 7b9b
+
+tasks: all
+variants: [v0]
+runs_per_combo: 1

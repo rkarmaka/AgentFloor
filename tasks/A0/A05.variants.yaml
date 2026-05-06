@@ -1,0 +1,41 @@
+task_id: A05
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is "18 months". Every variant must preserve the fact that the
+    maximum retention extension is 18 months and that exceeding 18 months requires
+    VP-level sign-off. Typos never touch "18 months" or "VP". mild_ambiguity
+    rephrases the question to be less direct but still answerable as "18 months".
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Based on the following policy document, answer the question.
+      Document: "Data retention requests are to be filed via the compliance portal no later than the close of Q2 in the fiscal year. Any request arriving after that deadline rolls over to the following review cycle. Extensions may be granted for up to 18 months. If a request seeks an extension beyond 18 months, it must carry VP-level sign-off along with a written justification citing the relevant regulatory framework. The compliance team processes requests in batches on a biweekly cadence."
+      Question: What is the maximum retention extension that does not require VP approval?
+  - id: v2
+    axis: question_rewording
+    text: |
+      Based on the following policy document, answer the question.
+      Document: "All data retention requests must be submitted through the compliance portal before the end of Q2 each fiscal year. Requests submitted after the deadline will be deferred to the next review cycle. The maximum retention extension is 18 months. Requests exceeding 18 months require VP-level sign-off and a written justification referencing the applicable regulatory framework. The compliance team reviews requests in batches every two weeks."
+      Question: Up to how long can a retention extension last without needing sign-off from a VP?
+  - id: v3
+    axis: distractor_details_in_passage
+    text: |
+      Based on the following policy document, answer the question.
+      Document: "All data retention requests must be submitted through the compliance portal before the end of Q2 each fiscal year. The portal is accessible at compliance.internal.corp and requires SSO authentication. Requests submitted after the deadline will be deferred to the next review cycle, which typically begins in early Q3. The maximum retention extension is 18 months. Requests exceeding 18 months require VP-level sign-off and a written justification referencing the applicable regulatory framework. Note that GDPR, HIPAA, and SOX are the most commonly cited frameworks. The compliance team reviews requests in batches every two weeks, usually on alternating Tuesdays."
+      Question: What is the maximum retention extension that does not require VP approval?
+  - id: v4
+    axis: passage_length_variation
+    text: |
+      Based on the following policy document, answer the question.
+      Document: "Retention requests go through the compliance portal by end of Q2. Late requests defer to the next cycle. The maximum retention extension is 18 months. Extensions beyond 18 months require VP-level sign-off and a written regulatory justification. Reviews happen biweekly."
+      Question: What is the maximum retention extension that does not require VP approval?
+  - id: v5
+    axis: mild_ambiguity
+    text: |
+      Based on the following policy document, answer the question.
+      Document: "All data retention requests must be submitted through the compliance portal before the end of Q2 each fiscal year. Requests submitted after the deadline will be deferred to the next review cycle. The maximum retention extension is 18 months. Requests exceeding 18 months require VP-level sign-off and a written justification referencing the applicable regulatory framework. The compliance team reviews requests in batches every two weeks."
+      Question: At what retention extension duration does VP involvement become necessary?

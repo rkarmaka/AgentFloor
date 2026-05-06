@@ -1,0 +1,49 @@
+# Reasoning-effort ablation — gpt-5 with low/medium/high
+#
+# Tests whether reducing reasoning effort (fewer internal CoT tokens)
+# degrades agentic tool-use performance, and if so, at which tier.
+#
+# The reasoning_effort parameter is passed via ModelConfig.extra into the
+# OpenAI API payload. Values: "low", "medium", "high" (default).
+#
+# 3 effort levels x 30 tasks x 3 variants x 3 runs = 810 runs
+# Cost estimate: ~$100-250 (gpt-5 pricing varies by effort level)
+#
+# Usage:
+#   python runs/run_sweep.py --config sweep_configs/reasoning_effort_ablation.yaml --models gpt-5-effort-low
+#   python runs/run_sweep.py --config sweep_configs/reasoning_effort_ablation.yaml --models gpt-5-effort-medium
+#   python runs/run_sweep.py --config sweep_configs/reasoning_effort_ablation.yaml --models gpt-5-effort-high
+
+sweep_name: reasoning_effort_ablation
+backend: openai
+results_dir: results
+max_output_tokens: 2048
+
+models:
+  - name: gpt-5-effort-low
+    backend: openai
+    tier: frontier
+    api_model: gpt-5
+    extra:
+      reasoning_effort: low
+    notes: "gpt-5 with reasoning_effort=low — minimal internal CoT"
+
+  - name: gpt-5-effort-medium
+    backend: openai
+    tier: frontier
+    api_model: gpt-5
+    extra:
+      reasoning_effort: medium
+    notes: "gpt-5 with reasoning_effort=medium"
+
+  - name: gpt-5-effort-high
+    backend: openai
+    tier: frontier
+    api_model: gpt-5
+    extra:
+      reasoning_effort: high
+    notes: "gpt-5 with reasoning_effort=high (default behavior)"
+
+tasks: all
+variants: [v0, v1, v2]
+runs_per_combo: 3

@@ -1,0 +1,65 @@
+# AgentFloor Pass 2 — paper-feeding sweep
+#
+# Same 16 models / 30 tasks as ollama_full.yaml (Pass 1) but expanded to:
+#   5 prompt variants × 5 runs per combo = 25 cells per (model, task)
+# → 16 × 30 × 5 × 5 = 12,000 runs
+#
+# Expected runtime: ~3–6 days at Pass 1 throughput. Runs are resumable
+# (re-running the same command picks up at the first missing result file)
+# and auto_stop between models keeps memory steady.
+#
+# Ollama server: update base_url to point at whichever host runs your
+# Ollama (e.g. a remote LAN address) before launching.
+
+sweep_name: ollama_full_pass2
+backend: ollama
+base_url: http://localhost:11434/v1
+results_dir: results
+max_output_tokens: 1024
+compat_out: results/ollama_compatibility.yaml
+probe_before_run: false   # Pass 1 already probed every model as native
+
+models:
+  # ── Micro (<1B) — capability floor probe ────────────────────────────────────
+  - {name: functiongemma:270m, params_b: 0.27, tier: micro,
+     notes: "Google fn-call specialist; expect A-tier only, not a general model"}
+  - {name: qwen3:0.6b,         params_b: 0.6,  tier: micro}
+
+  # ── Sub-3B ──────────────────────────────────────────────────────────────────
+  - {name: qwen3:1.7b,         params_b: 1.7,  tier: sub3b}
+  - {name: qwen3.5:2b,         params_b: 2.0,  tier: sub3b,
+     notes: "Qwen3.5 multimodal, 256K ctx"}
+
+  # ── 3B–4B ───────────────────────────────────────────────────────────────────
+  - {name: granite4:3b,        params_b: 3.0,  tier: 3b4b,
+     notes: "IBM dense, 128K ctx; probed native"}
+  - {name: ministral-3:3b,     params_b: 3.0,  tier: 3b4b,
+     notes: "Mistral edge SLM"}
+  - {name: nemotron-3-nano:4b, params_b: 4.0,  tier: 3b4b,
+     notes: "NVIDIA agentic-tuned"}
+
+  # ── 7B–9B (AgentFloor primary focus zone) ───────────────────────────────────
+  - {name: qwen3:8b,           params_b: 8.0,  tier: 7b9b}
+  - {name: ministral-3:8b,     params_b: 8.0,  tier: 7b9b}
+  - {name: gemma4:e4b,         params_b: 4.0,  tier: 7b9b,
+     notes: "Gemma 4 edge variant; replaces broken gemma3 family"}
+
+  # ── 12B–14B ─────────────────────────────────────────────────────────────────
+  - {name: qwen3:14b,          params_b: 14.0, tier: 12b14b}
+  - {name: ministral-3:14b,    params_b: 14.0, tier: 12b14b}
+
+  # ── 20B–27B ─────────────────────────────────────────────────────────────────
+  - {name: gpt-oss:20b,        params_b: 20.0, tier: 20b27b,
+     notes: "OpenAI gpt-oss MXFP4, native fn-call + browsing + python tools"}
+  - {name: mistral-small3.2:24b, params_b: 24.0, tier: 20b27b,
+     notes: "Mistral Small 3.2 — improved fn-call template vs 3.0/3.1"}
+  - {name: gemma4:26b,         params_b: 26.0, tier: 20b27b,
+     notes: "Gemma 4 frontier-tier SLM, 256K ctx"}
+
+  # ── 30B+ (SLM ceiling reference) ────────────────────────────────────────────
+  - {name: qwen3:32b,          params_b: 32.0, tier: 30b,
+     notes: "Qwen3 dense ceiling for the SLM tier"}
+
+tasks: all
+variants: [v0, v1, v2, v3, v4]
+runs_per_combo: 5

@@ -1,0 +1,28 @@
+task_id: A3
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is 96 (12 × 8). All variants must preserve the operands
+    12 and 8 and the multiply operation. Distractor variants add irrelevant
+    numbers that must not replace the operands.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Using the compute tool, find the product of unit price 12 and quantity 8 to determine the total cost."
+  - id: v2
+    axis: distractor_numeric_fields
+    text: |
+      We have an order with 3 line items. For the first line item,
+      the unit price is 12 and the quantity is 8. Use the compute tool
+      to multiply unit price by quantity and give me the total cost.
+  - id: v3
+    axis: wording_noise
+    text: "Hey, could you plese go ahead and calcualte the total cost — multiply the unit price of 12 by the quantiy 8 using the compute tool?"
+  - id: v4
+    axis: operation_synonym
+    text: "Use the compute tool to get the product of 12 (unit price) times 8 (quantity) and report the total cost."
+  - id: v5
+    axis: reordered_context
+    text: "Unit price is 12, quantity is 8. Multiply them together with the compute tool and tell me the total cost."

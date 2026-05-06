@@ -1,0 +1,81 @@
+task_id: E5
+domain: service_deployment
+description: >
+  Service deployment for E5. Tests recovery with downstream constraint impact.
+  Initial workflow: get config → select v2.0 → check compatibility (FAILS) → choose recovery path → submit.
+  Two valid recovery paths:
+    Path A: downgrade to v2.1 → must deploy in region-east
+    Path B: upgrade to v3.0 → must deploy in region-west
+  Either is valid as long as the chosen region matches the chosen version.
+
+records:
+  SV-9:
+    name: "Payment Gateway"
+    current_component_version: "v2.0"
+    config_id: "cfg-9-prod"
+
+component_versions:
+  v2.0:
+    description: "Current — incompatible with platform"
+    compatible_regions: []
+  v2.1:
+    description: "Stable downgrade"
+    compatible_regions: [region-east]
+  v3.0:
+    description: "Latest upgrade"
+    compatible_regions: [region-west]
+
+regions:
+  - region-east
+  - region-west
+  - region-central
+
+constraints:
+  platform_compatibility:
+    rule: current_component_version_supported
+
+scripted_failures:
+  - tool: check_constraint
+    when_args:
+      record_id: SV-9
+      constraint_name: platform_compatibility
+    response:
+      status: error
+      result:
+        satisfied: false
+      error:
+        type: compatibility_violation
+        message: "Component v2.0 is not compatible with the current platform."
+        recoverable: true
+        hint: "Either downgrade to v2.1 (region-east only) or upgrade to v3.0 (region-west only)."
+      note: "Forces the model into a recovery branch with two valid paths."
+
+submission_validator:
+  required_fields: [component_version, deployment_region]
+  consistency_rules:
+    - if_version: v2.1
+      required_region: region-east
+    - if_version: v3.0
+      required_region: region-west
+  on_match:
+    status: ok
+    submission_id: SUB-E5-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: inconsistent_recovery_and_region
+
+gold:
+  failure_point: compatibility_check_for_v2.0
+  valid_solutions:
+    - recovery_path: path_a
+      component_version: v2.1
+      deployment_region: region-east
+    - recovery_path: path_b
+      component_version: v3.0
+      deployment_region: region-west
+  invalid_combinations:
+    - component_version: v2.1
+      deployment_region: region-west
+    - component_version: v3.0
+      deployment_region: region-east

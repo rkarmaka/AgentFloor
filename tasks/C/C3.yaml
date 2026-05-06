@@ -1,0 +1,84 @@
+task_id: C3
+fixture: fixtures/C/C3_applicant_review.yaml
+name: Compute threshold and decide
+level: C
+category: conditional_branching
+subcategory: score_threshold_branch
+goal: Compute a weighted score and choose approve or reject based on threshold.
+difficulty_rationale: Requires arithmetic plus threshold-based decision.
+tools_available:
+  - lookup_record
+  - compute_value
+  - submit_decision
+max_steps: 6
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: applicant_review
+  user_intent: score_and_decide
+gold_state:
+  target_record_id: APP-55
+  score_formula: weighted_score
+  approval_threshold: 80
+  expected_score: 84
+  expected_decision: approve
+pass_conditions:
+  - correct_record_retrieved
+  - correct_score_computed
+  - correct_threshold_applied
+  - correct_submission_sent
+soft_metrics:
+  - branch_correctness
+  - num_steps
+  - num_tool_calls
+primary_failure_labels:
+  - computation_error
+  - threshold_error
+  - wrong_submission
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - threshold_expression_variation
+  - distractor_fields
+  - formula_rewording
+  - prompt_clutter
+
+oracle_evaluator:
+  final_answer_check:
+    type: structured_match
+    expected_fields:
+      weighted_score: 84
+      action: approve
+    tolerance:
+      weighted_score: 0
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_branch_correctness: true
+  submission_check:
+    required: true
+    expected_submission:
+      action: approve
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+    - compute_value
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: skip_required_step
+      step: computation_before_decision
+
+notes_for_evaluator: Score and decision should both be checked, not just final approval label.
+example_prompt: Look up applicant APP-55, calculate the weighted score from skill and experience fields, and approve only if the score is above 80.
+expected_agent_behavior:
+  - look up APP-55
+  - compute weighted score
+  - compare to threshold
+  - submit approve or reject
+  - report score and decision

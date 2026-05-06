@@ -1,0 +1,77 @@
+task_id: D2
+fixture: fixtures/D/D2_inventory_audit.yaml
+name: Resolve conflicting values using precedence rule
+level: D
+category: multi_source_reasoning
+subcategory: source_precedence_resolution
+goal: Resolve disagreement between two record sources using a predefined precedence rule.
+difficulty_rationale: Requires detecting conflict and correctly applying rule-based synthesis.
+tools_available:
+  - lookup_record
+  - get_attribute
+  - compare_records
+max_steps: 8
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: inventory_audit
+  user_intent: determine_official_value
+gold_state:
+  target_record_id: INV-77
+  conflicting_fields:
+    warehouse_stock: 52
+    audit_stock: 47
+  precedence_rule: audit_overrides_warehouse
+  target_value: 47
+pass_conditions:
+  - conflict_detected
+  - precedence_rule_applied_correctly
+  - official_value_reported_correctly
+soft_metrics:
+  - num_tool_calls
+  - evidence_usage_count
+  - total_latency_ms
+primary_failure_labels:
+  - missed_conflict
+  - wrong_precedence_rule
+  - final_answer_incorrect
+secondary_failure_labels:
+  - incomplete_evidence_gathering
+variant_axes:
+  - paraphrase
+  - conflicting_value_magnitude
+  - reordered_rule_statement
+  - distractor_fields
+  - wording_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: numeric_match
+    expected_fields:
+      official_stock: 47
+    tolerance: 0
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_conflict_detected: true
+    require_precedence_applied: true
+
+trace_requirements:
+  must_call_tools:
+    - lookup_record
+  optional_tools:
+    - get_attribute
+    - compare_records
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: average_conflicting_values
+
+notes_for_evaluator: Answer must use precedence rule explicitly or implicitly; averaging or arbitrary choice fails.
+example_prompt: Determine the official stock count for item INV-77. The warehouse record and audit record may disagree. Use the audit record if there is a conflict.
+expected_agent_behavior:
+  - retrieve both source values
+  - detect mismatch
+  - apply audit precedence
+  - report official count

@@ -1,0 +1,46 @@
+task_id: A1
+domain: product_catalog
+description: >
+  Product catalog containing P104 (the lookup target) and a few distractors.
+  Used by A1 for a single lookup_record call against a known ID.
+
+records:
+  P104:
+    name: "Alpha Sensor"
+    status: active
+    category: sensor
+    sku: ALS-104
+  P105:
+    name: "Alpha Sensor v2"
+    status: inactive
+    category: sensor
+    sku: ALS-105
+  P201:
+    name: "Beta Sensor"
+    status: active
+    category: sensor
+    sku: BTS-201
+  P310:
+    name: "Gamma Probe"
+    status: deprecated
+    category: probe
+    sku: GMP-310
+  # Records below appended 2026-04-25 to support the input-instance ablation
+  # (Step 4 of the NeurIPS execution guide). They expand the pool of viable
+  # lookup targets so 5 distinct instance variants can be authored. Existing
+  # v0-v5 baselines target P104 only and remain unaffected.
+  P407:
+    name: "Delta Actuator"
+    status: active
+    category: actuator
+    sku: DLA-407
+  P512:
+    name: "Epsilon Controller"
+    status: inactive
+    category: controller
+    sku: EPC-512
+
+gold:
+  target_record_id: P104
+  expected_field: status
+  expected_value: active

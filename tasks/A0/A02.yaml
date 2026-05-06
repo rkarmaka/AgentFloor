@@ -1,0 +1,90 @@
+task_id: A02
+fixture: null
+name: Summarize a record description
+level: A0
+category: summarization
+subcategory: single_passage_summary
+goal: Produce a one-sentence summary of a technical record description.
+difficulty_rationale: Pure NLU — tests compression and salience extraction with no tool use.
+tools_available: []
+max_steps: 1
+allowed_repair_turns: 0
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: incident_report
+  user_intent: summarize_incident
+  passage: >
+    On April 3rd at 14:22 UTC, the payment processing service experienced
+    a cascading failure after a misconfigured rate limiter allowed 12x
+    normal traffic through the gateway. The downstream database connection
+    pool was exhausted within 90 seconds, causing all checkout requests
+    to return 503 errors. The incident lasted 47 minutes and affected
+    approximately 8,200 transactions. The root cause was a config push
+    that removed the per-client rate cap.
+gold_state:
+  required_elements:
+    - payment_service_failure
+    - rate_limiter_misconfiguration
+    - duration_or_impact
+  target_summary_approx: >
+    A misconfigured rate limiter caused a 47-minute payment processing outage
+    that affected 8,200 transactions.
+pass_conditions:
+  - summary_contains_core_cause
+  - summary_contains_impact_or_duration
+  - summary_is_one_to_two_sentences
+soft_metrics:
+  - response_length
+  - total_latency_ms
+  - information_density
+primary_failure_labels:
+  - missing_core_cause
+  - missing_impact
+  - excessive_length
+  - hallucinated_details
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - passage_length_variation
+  - distractor_details
+  - reordered_events
+  - mild_typo
+
+oracle_evaluator:
+  final_answer_check:
+    type: element_coverage
+    required_elements:
+      - payment_service_failure
+      - rate_limiter_misconfiguration
+      - duration_or_impact
+    max_sentences: 2
+  trajectory_check:
+    require_step_budget: true
+
+trace_requirements:
+  must_call_tools: []
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: hallucinated_facts_not_in_passage
+
+notes_for_evaluator: >
+  Judge on element coverage, not exact wording. Summary must mention the cause
+  (rate limiter misconfig) and at least one of duration (47 min) or impact (8200 txns).
+  Hallucinated details not in the passage should fail.
+example_prompt: >
+  Summarize the following incident report in one sentence:
+
+  "On April 3rd at 14:22 UTC, the payment processing service experienced a cascading
+  failure after a misconfigured rate limiter allowed 12x normal traffic through the
+  gateway. The downstream database connection pool was exhausted within 90 seconds,
+  causing all checkout requests to return 503 errors. The incident lasted 47 minutes
+  and affected approximately 8,200 transactions. The root cause was a config push
+  that removed the per-client rate cap."
+expected_agent_behavior:
+  - read the passage
+  - identify core cause and impact
+  - produce concise summary

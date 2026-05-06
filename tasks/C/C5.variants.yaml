@@ -1,0 +1,26 @@
+task_id: C5
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: T-908 severity is "critical", so the action is "escalate".
+    All variants preserve T-908 and the escalation rule. Severity synonyms
+    appear in prompt wording only; the fixture field value remains "critical".
+    Identifier noise uses cosmetic transforms of T-908 in surrounding text.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Check ticket T-908 and determine its severity level. If the severity is critical, escalate the ticket immediately. If it is anything else, leave it in the current queue."
+  - id: v2
+    axis: severity_synonyms
+    text: "Examine ticket T-908. If the issue is flagged as urgent or high-priority (i.e., the severity field reads critical), escalate it. Otherwise, keep it in the current queue."
+  - id: v3
+    axis: distractor_ticket_details
+    text: "Review ticket T-908. The ticket belongs to the networking category and is tagged with tags like 'latency' and 'timeout'. Regardless of those details, if the issue severity is critical, escalate it. Otherwise, keep it in the current queue."
+  - id: v4
+    axis: reordered_constraints
+    text: "For ticket T-908: if the severity is not critical, keep it in the currrent queue. Only escalate if severity is critical."
+  - id: v5
+    axis: identifier_noise
+    text: "Pull up support ticket T-908 (sometimes referenced as t-908 or T908 in older systems). Check whether its severity is critical, and if so, escalate it. Otherwise, leave it queued."

@@ -1,0 +1,74 @@
+task_id: C2
+fixture: fixtures/C/C2_version_registry.yaml
+name: Unique match vs ambiguity resolution
+level: C
+category: conditional_branching
+subcategory: count_based_branching
+goal: Branch based on whether search yields one or multiple matches.
+difficulty_rationale: Tests dynamic control flow rather than fixed tool sequence.
+tools_available:
+  - search_records
+  - compare_records
+  - lookup_record
+max_steps: 6
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: version_registry
+  user_intent: disambiguate_record
+gold_state:
+  query: Delta Module
+  disambiguation_criteria: approved_version
+  target_record_id: DM-8
+  target_value: v2.4
+pass_conditions:
+  - correct_branch_taken_based_on_match_count
+  - correct_record_selected
+  - correct_approved_version_reported
+soft_metrics:
+  - branch_correctness
+  - num_tool_calls
+  - redundant_calls
+primary_failure_labels:
+  - branch_selection_error
+  - ambiguity_handling_error
+  - wrong_record_lookup
+secondary_failure_labels:
+  - premature_answer
+variant_axes:
+  - paraphrase
+  - ambiguity_degree
+  - distractor_matches
+  - reordered_instructions
+  - alias_variation
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      record_id: DM-8
+      approved_version: v2.4
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_branch_correctness: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+  optional_tools:
+    - compare_records
+    - lookup_record
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: If only one match exists in the variant, compare_records is optional.
+example_prompt: Find the correct record for Delta Module and report the approved version. If multiple Delta Module records exist, compare them before selecting.
+expected_agent_behavior:
+  - search Delta Module
+  - inspect number of matches
+  - branch accordingly
+  - compare if needed
+  - retrieve or report approved version

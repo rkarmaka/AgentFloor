@@ -1,0 +1,33 @@
+task_id: B2
+domain: supplier_registry
+description: >
+  Supplier registry for B2. Tests lookup → get_attribute chaining.
+  SUP-104 has reliability_score=92; other distractor scores live on other suppliers.
+
+records:
+  SUP-104:
+    name: "Pinnacle Systems"
+    country: Canada
+    reliability_score: 92
+    avg_lead_time_days: 4
+    tier: gold
+    last_audit: "2025-12-15"
+  SUP-205:
+    name: "Pinnacle Logistics"
+    country: USA
+    reliability_score: 78
+    avg_lead_time_days: 9
+    tier: silver
+    last_audit: "2025-09-01"
+  SUP-388:
+    name: "Apex Components"
+    country: Germany
+    reliability_score: 88
+    avg_lead_time_days: 6
+    tier: gold
+    last_audit: "2025-11-20"
+
+gold:
+  target_record_id: SUP-104
+  target_attribute: reliability_score
+  target_value: 92

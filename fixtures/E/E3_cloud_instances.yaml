@@ -1,0 +1,120 @@
+task_id: E3
+domain: cloud_instance_selection
+description: >
+  Cloud instances for E3. Tests constraint preservation under distractors (F3 context amnesia).
+  Constraints stated early: budget <= 250, region must be east, CUDA version >= 12.
+  CI-9 is the strongest distractor (fastest, cheapest) but in region west.
+  CI-4 is the only fully compliant option.
+
+options:
+  cloud_instances:
+    - id: CI-1
+      name: "east-small"
+    - id: CI-2
+      name: "east-medium-old-cuda"
+    - id: CI-3
+      name: "east-large-overbudget"
+    - id: CI-4
+      name: "east-balanced"
+    - id: CI-5
+      name: "west-cheap"
+    - id: CI-6
+      name: "west-medium"
+    - id: CI-7
+      name: "central-fast"
+    - id: CI-8
+      name: "east-no-cuda"
+    - id: CI-9
+      name: "west-fastest-cheapest"
+    - id: CI-10
+      name: "east-premium"
+
+records:
+  CI-1:
+    monthly_price: 90
+    region: east
+    cuda_version: 11
+    benchmark_score: 40
+  CI-2:
+    monthly_price: 180
+    region: east
+    cuda_version: 10
+    benchmark_score: 60
+  CI-3:
+    monthly_price: 320
+    region: east
+    cuda_version: 12
+    benchmark_score: 95
+  CI-4:
+    monthly_price: 240
+    region: east
+    cuda_version: 12
+    benchmark_score: 75
+  CI-5:
+    monthly_price: 110
+    region: west
+    cuda_version: 12
+    benchmark_score: 50
+  CI-6:
+    monthly_price: 200
+    region: west
+    cuda_version: 12
+    benchmark_score: 70
+  CI-7:
+    monthly_price: 230
+    region: central
+    cuda_version: 12
+    benchmark_score: 88
+  CI-8:
+    monthly_price: 200
+    region: east
+    cuda_version: null
+    benchmark_score: 45
+  CI-9:
+    monthly_price: 180
+    region: west
+    cuda_version: 12
+    benchmark_score: 99
+  CI-10:
+    monthly_price: 280
+    region: east
+    cuda_version: 12
+    benchmark_score: 90
+
+constraints:
+  budget_max:
+    field: monthly_price
+    operator: lte
+    value: 250
+  region_required:
+    field: region
+    operator: eq
+    value: east
+  cuda_version_required:
+    field: cuda_version
+    operator: gte
+    value: 12
+
+ranking_criterion:
+  field: benchmark_score
+  direction: max
+
+gold:
+  hard_constraints:
+    - budget_max
+    - region_required
+    - cuda_version_required
+  constraint_violations:
+    CI-1: [cuda_version_required]
+    CI-2: [cuda_version_required]
+    CI-3: [budget_max]
+    CI-5: [region_required]
+    CI-6: [region_required]
+    CI-7: [region_required]
+    CI-8: [cuda_version_required]
+    CI-9: [region_required]
+    CI-10: [budget_max]
+  tempting_invalid_id: CI-9
+  valid_candidates:
+    - CI-4
+  target_record_id: CI-4

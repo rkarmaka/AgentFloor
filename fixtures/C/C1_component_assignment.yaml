@@ -1,0 +1,93 @@
+task_id: C1
+domain: component_assignment
+description: >
+  Component assignment fixture for C1. Tests binary branching.
+  CMP-31 is active in the canonical run, so the model should call assign_primary.
+  Variants may flip the status to test the fallback branch.
+
+records:
+  CMP-31:
+    name: "Primary Pump Module"
+    status: active
+    version: "3.2"
+    last_inspection: "2026-02-14"
+  CMP-32:
+    name: "Backup Pump Module"
+    status: active
+    version: "3.1"
+    last_inspection: "2026-01-30"
+  # Records below appended 2026-04-25 for input-instance ablation. They give
+  # the ablation a balanced status mix (3 active + 3 inactive across all
+  # records) so instance variants can exercise both branches of the
+  # primary/fallback decision instead of the v0-only "always primary" path.
+  CMP-33:
+    name: "Coolant Loop A"
+    status: inactive
+    version: "2.4"
+    last_inspection: "2026-03-02"
+  CMP-34:
+    name: "Coolant Loop B"
+    status: inactive
+    version: "2.4"
+    last_inspection: "2026-03-09"
+  CMP-35:
+    name: "Pressure Regulator"
+    status: active
+    version: "4.0"
+    last_inspection: "2026-02-22"
+  CMP-36:
+    name: "Vibration Damper"
+    status: inactive
+    version: "1.7"
+    last_inspection: "2026-03-15"
+
+submission_validator:
+  required_fields: [action]
+  branch_rules:
+    - when:
+        record_id: CMP-31
+        field: status
+        equals: active
+      expected_action: assign_primary
+    - when:
+        record_id: CMP-31
+        field: status
+        equals: inactive
+      expected_action: assign_fallback
+    # Branch rules below appended 2026-04-25 for instance ablation. Same
+    # rule shape per record: status=active → primary, status=inactive →
+    # fallback. Adding more rules (rather than generalizing the validator)
+    # avoids any code change to the evaluator's branch-correctness check.
+    - when: { record_id: CMP-32, field: status, equals: active }
+      expected_action: assign_primary
+    - when: { record_id: CMP-32, field: status, equals: inactive }
+      expected_action: assign_fallback
+    - when: { record_id: CMP-33, field: status, equals: active }
+      expected_action: assign_primary
+    - when: { record_id: CMP-33, field: status, equals: inactive }
+      expected_action: assign_fallback
+    - when: { record_id: CMP-34, field: status, equals: active }
+      expected_action: assign_primary
+    - when: { record_id: CMP-34, field: status, equals: inactive }
+      expected_action: assign_fallback
+    - when: { record_id: CMP-35, field: status, equals: active }
+      expected_action: assign_primary
+    - when: { record_id: CMP-35, field: status, equals: inactive }
+      expected_action: assign_fallback
+    - when: { record_id: CMP-36, field: status, equals: active }
+      expected_action: assign_primary
+    - when: { record_id: CMP-36, field: status, equals: inactive }
+      expected_action: assign_fallback
+  on_match:
+    status: ok
+    submission_id: SUB-C1-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: branching_error
+
+gold:
+  target_record_id: CMP-31
+  branch_field: status
+  canonical_status: active
+  expected_branch: assign_primary

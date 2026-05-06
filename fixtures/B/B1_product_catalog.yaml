@@ -1,0 +1,75 @@
+task_id: B1
+domain: product_catalog
+description: >
+  Product catalog for B1. Tests search → lookup chaining.
+  Search "Alpha Sensor" returns P104; lookup P104 returns status=active.
+
+records:
+  P104:
+    name: "Alpha Sensor"
+    status: active
+    category: sensor
+    sku: ALS-104
+    manufacturer: "Acme Industrial"
+  P105:
+    name: "Alpha Sensor v2"
+    status: inactive
+    category: sensor
+    sku: ALS-105
+    manufacturer: "Acme Industrial"
+  P208:
+    name: "Bravo Sensor"
+    status: active
+    category: sensor
+    sku: BRS-208
+    manufacturer: "Beta Devices"
+  P310:
+    name: "Charlie Probe"
+    status: deprecated
+    category: probe
+    sku: CHP-310
+    manufacturer: "Gamma Tools"
+  # Records below appended 2026-04-25 for input-instance ablation. Each new
+  # record has a unique searchable name so instance variants can target them
+  # via search_records without ambiguity.
+  P415:
+    name: "Delta Filter"
+    status: active
+    category: filter
+    sku: DLF-415
+    manufacturer: "Delta Components"
+  P522:
+    name: "Echo Module"
+    status: inactive
+    category: module
+    sku: ECM-522
+    manufacturer: "Echo Systems"
+
+search_index:
+  "Alpha Sensor":
+    - P104
+  "Alpha Sensor v2":
+    - P105
+  "Alpha":
+    - P104
+    - P105
+  "Sensor":
+    - P104
+    - P105
+    - P208
+  "Bravo":
+    - P208
+  "Bravo Sensor":
+    - P208
+  "Charlie Probe":
+    - P310
+  "Delta Filter":
+    - P415
+  "Echo Module":
+    - P522
+
+gold:
+  query: "Alpha Sensor"
+  target_record_id: P104
+  expected_field: status
+  expected_value: active

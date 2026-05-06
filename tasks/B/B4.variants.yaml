@@ -1,0 +1,28 @@
+task_id: B4
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is SP-3 with capacity_gb=500 and monthly_price=45.
+    The chain is list_options → lookup_record(SP-3). ID_format_variation
+    applies cosmetic transforms to "SP-3" in the prompt text.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Show me all the storage plans that are available, and then pull up the complete details for plan SP-3."
+  - id: v2
+    axis: distractor_plan_descriptions
+    text: |
+      I know there are several tiers of storage — some with SSD,
+      some with archival disks. List all available storage plans
+      first, then show me the full details of plan SP-3.
+  - id: v3
+    axis: reordered_instruction
+    text: "I need the full details of storage plan SP-3. Start by listing all available plans, then look up SP-3."
+  - id: v4
+    axis: wording_noise
+    text: "Could you frist list the availble storage plans and then give me all the detials for plan SP-3?"
+  - id: v5
+    axis: ID_format_variation
+    text: "List the available storage plans and then show me the full details of plan sp-3."

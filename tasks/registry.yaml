@@ -1,0 +1,144 @@
+benchmark:
+  name: slm_agentic_capability_benchmark
+  version: "0.2"
+  description: Benchmark for multi-tool task capability across model scales
+  task_root: tasks
+  active_levels: [A0, A, B, C, D, E]
+  active_tasks:
+    - A01
+    - A02
+    - A03
+    - A04
+    - A05
+    - A1
+    - A2
+    - A3
+    - A4
+    - A5
+    - B1
+    - B2
+    - B3
+    - B4
+    - B5
+    - C1
+    - C2
+    - C3
+    - C4
+    - C5
+    - D1
+    - D2
+    - D3
+    - D4
+    - D5
+    - E1
+    - E2
+    - E3
+    - E4
+    - E5
+
+defaults:
+  deterministic: true
+  allow_repair_turns: 1
+  max_output_tokens: 512
+  temperature: 0.0
+  top_p: 1.0
+  max_total_steps_by_level:
+    A0: 1
+    A: 2
+    B: 4
+    C: 6
+    D: 8
+    E: 10
+
+trace_defaults:
+  save_full_trajectory: true
+  save_raw_model_text: true
+  save_tool_payloads: true
+  save_token_usage: true
+  save_latency: true
+
+evaluation_defaults:
+  primary_metric: pass_fail
+  require_within_step_budget: true
+  require_valid_final_schema: true
+  assign_primary_failure_label: true
+  assign_secondary_failure_labels: true
+
+levels:
+  A0:
+    name: baseline_instruction_following
+    description: Pure NLU tasks with no tool use — classification, summarization, extraction, comprehension
+    expected_capabilities:
+      - instruction_following
+      - reading_comprehension
+      - label_selection
+      - information_extraction
+  A:
+    name: single_tool_call
+    description: Single tool call tasks — tests basic tool invocation, argument passing, and output interpretation
+    expected_capabilities:
+      - tool_call_syntax
+      - argument_passing
+      - output_reading
+  B:
+    name: sequential_chaining
+    description: Two-tool linear chains where output of the first tool feeds the second — no branching
+    expected_capabilities:
+      - tool_chaining
+      - output_forwarding
+      - id_carryover
+  C:
+    name: conditional_branching
+    description: Tasks requiring branch selection based on intermediate tool output
+    expected_capabilities:
+      - conditional_logic
+      - branch_selection
+      - threshold_evaluation
+  D:
+    name: multi_source_reasoning
+    description: Tasks requiring evidence from multiple sources with conflict resolution or error recovery
+    expected_capabilities:
+      - multi_source_synthesis
+      - conflict_resolution
+      - error_recovery
+      - replanning
+  E:
+    name: long_horizon_planning
+    description: Long workflows with persistent constraints, deferred dependencies, and planning under uncertainty
+    expected_capabilities:
+      - long_horizon_planning
+      - constraint_preservation
+      - deferred_dependency_reasoning
+      - recovery_with_planning
+
+task_file_map:
+  A01: tasks/A0/A01.yaml
+  A02: tasks/A0/A02.yaml
+  A03: tasks/A0/A03.yaml
+  A04: tasks/A0/A04.yaml
+  A05: tasks/A0/A05.yaml
+  A1: tasks/A/A1.yaml
+  A2: tasks/A/A2.yaml
+  A3: tasks/A/A3.yaml
+  A4: tasks/A/A4.yaml
+  A5: tasks/A/A5.yaml
+  B1: tasks/B/B1.yaml
+  B2: tasks/B/B2.yaml
+  B3: tasks/B/B3.yaml
+  B4: tasks/B/B4.yaml
+  B5: tasks/B/B5.yaml
+  C1: tasks/C/C1.yaml
+  C2: tasks/C/C2.yaml
+  C3: tasks/C/C3.yaml
+  C4: tasks/C/C4.yaml
+  C5: tasks/C/C5.yaml
+  D1: tasks/D/D1.yaml
+  D2: tasks/D/D2.yaml
+  D3: tasks/D/D3.yaml
+  D4: tasks/D/D4.yaml
+  D5: tasks/D/D5.yaml
+  E1: tasks/E/E1.yaml
+  E2: tasks/E/E2.yaml
+  E3: tasks/E/E3.yaml
+  E4: tasks/E/E4.yaml
+  E5: tasks/E/E5.yaml

@@ -1,0 +1,110 @@
+task_id: E4
+fixture: fixtures/E/E4_deployment_partners.yaml
+name: Full end-to-end synthesis and action
+level: E
+category: long_horizon_planning
+subcategory: complete_agentic_decision_pipeline
+goal: Search, verify, resolve conflict, score, constraint-check, and submit a final decision.
+difficulty_rationale: Full benchmark task combining most required capabilities.
+tools_available:
+  - search_records
+  - lookup_record
+  - compare_records
+  - compute_value
+  - check_constraint
+  - submit_decision
+max_steps: 12
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: deployment_partner_selection
+  user_intent: select_best_partner_end_to_end
+gold_state:
+  query: edge rollout partner
+  precedence_rule: audit_overrides_profile
+  scoring_rule: weighted_score
+  hard_constraint:
+    compliance_required: true
+  target_option_id: EP-6
+pass_conditions:
+  - eligible_candidates_found
+  - relevant_records_verified
+  - source_conflicts_resolved_correctly
+  - weighted_score_computed_correctly
+  - compliance_checked
+  - best_valid_partner_submitted
+soft_metrics:
+  - workflow_completeness
+  - constraint_preservation
+  - num_tool_calls
+  - recovery_success
+  - total_latency_ms
+primary_failure_labels:
+  - incomplete_pipeline
+  - conflict_resolution_error
+  - computation_error
+  - constraint_violation
+  - wrong_submission
+secondary_failure_labels:
+  - premature_termination
+  - non_optimal_selection
+variant_axes:
+  - paraphrase
+  - distractor_candidates
+  - reordered_subgoals
+  - conflicting_field_strength
+  - mild_wording_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_partner: EP-6
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_conflict_detected: true
+    require_precedence_applied: true
+    require_all_constraints_checked:
+      - compliance_required
+    require_all_pipeline_stages_completed:
+      - candidate_search
+      - record_verification
+      - conflict_resolution
+      - score_computation
+      - compliance_check
+      - final_submission
+  submission_check:
+    required: true
+    expected_submission:
+      partner_id: EP-6
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+    - lookup_record
+    - compare_records
+    - compute_value
+    - check_constraint
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: skip_pipeline_stage
+    - type: average_conflicting_values
+    - type: skip_required_step
+      step: compliance_check
+
+notes_for_evaluator: This task should require the full chain; skipping major stages should fail even if final partner coincidentally matches the gold answer.
+example_prompt: Choose the best deployment partner for the new edge rollout. Search for eligible partners, verify cost and reliability, resolve any conflict between profile and audit records using the audit record, compute the final weighted score, ensure the partner meets compliance, and submit the final selection.
+expected_agent_behavior:
+  - search eligible partners
+  - inspect candidate records
+  - resolve profile/audit conflict using precedence rule
+  - compute scores
+  - check compliance
+  - choose best valid partner
+  - submit final selection

@@ -1,0 +1,60 @@
+# Qwen3 reasoning-ablation sweep
+#
+# Isolates the effect of Qwen3's native "thinking" mode on agentic tool-use
+# TCR. The Pass 2 corpus ran Qwen3 with thinking ENABLED (the default in
+# Ollama). This sweep re-runs the same 30 tasks × 5 variants × 5 runs on
+# the same Qwen3 sizes with thinking DISABLED via the `/no_think` directive
+# appended to the system prompt.
+#
+# Hypothesis (H-reason): reasoning tokens do not improve tool-use TCR;
+# they may actively hurt by (a) consuming output budget and (b) triggering
+# F5 ("terminate without answer") when the model dumps reasoning and then
+# forgets to emit a tool call or final answer.
+#
+# PREREQUISITE — run this on your Ollama host once before launching:
+#
+#   ollama cp qwen3:8b  qwen3:8b-nothink
+#   ollama cp qwen3:14b qwen3:14b-nothink
+#   ollama cp qwen3:32b qwen3:32b-nothink
+#
+# `ollama cp` is a cheap tag-rename (no re-download, no extra disk). The
+# copied models are identical to the originals; the `/no_think` directive
+# is injected at request time via `system_prompt_suffix` below, so the
+# only difference vs Pass 2 is the prompt.
+#
+# Results land at results/openai_compatible:ollama/qwen3_14b-nothink/
+# etc., which means they don't overwrite your existing Pass 2 data and
+# run_metrics.py treats them as separate models for TCR comparison.
+#
+# Expected runtime: ~90 min per model on the Tailscale host; ~4 hrs total
+# for all three sizes. Resume-safe.
+
+sweep_name: qwen3_nothink_ablation
+backend: ollama
+base_url: http://localhost:11434/v1   # override if your Ollama runs on a different host
+results_dir: results
+max_output_tokens: 1024
+probe_before_run: false   # qwen3 family already known native
+
+models:
+  - name: qwen3:8b-nothink
+    params_b: 8.0
+    tier: 7b9b
+    system_prompt_suffix: "/no_think"
+    notes: "Qwen3 8B with reasoning disabled (ablation partner to qwen3:8b from Pass 2)"
+
+  - name: qwen3:14b-nothink
+    params_b: 14.0
+    tier: 12b14b
+    system_prompt_suffix: "/no_think"
+    notes: "Qwen3 14B with reasoning disabled"
+
+  - name: qwen3:32b-nothink
+    params_b: 32.0
+    tier: 30b
+    system_prompt_suffix: "/no_think"
+    notes: "Qwen3 32B ceiling ablation"
+
+tasks: all
+variants: [v0, v1, v2, v3, v4]
+runs_per_combo: 5

@@ -1,0 +1,115 @@
+task_id: E1
+generator:
+  by: claude-opus-4-7-1m
+  generated_at: 2026-04-25T00:00:00+00:00
+  source: hand_crafted_for_input_instance_ablation
+  notes: |
+    Five instance variants for the input-instance ablation. Each preserves
+    the long-horizon procurement template — list options, verify approval,
+    verify chassis/GPU compatibility, respect budget, submit a bundle —
+    but adds an additional instance-specific bundle constraint that the
+    model must satisfy.
+
+    The fixture's bundle_validator continues to gate budget, vendor approval,
+    and chassis/GPU compatibility unchanged. The instance-specific
+    constraint is enforced via the task-side
+    oracle_evaluator.final_answer_check.expected_fields — a model that
+    submits a valid bundle that ignores the instance-specific constraint
+    will pass the fixture's submission check but fail the final_answer
+    check. expected_fields is a SUBSET of the bundle (vendor_id only,
+    or chassis_id only, etc.); _check_field_match in
+    harness/eval_checks/final_answer.py only verifies the listed
+    fields, so the model is free to choose the unconstrained components.
+
+    Constraint mix across the 5 instances:
+      i1: vendor must be V-Approved-1                          (2 valid bundles)
+      i2: chassis must be CH-5 (mini-tower)                    (3 valid bundles)
+      i3: GPU must be GPU-9 (mobile, restricts chassis to CH-5) (3 valid bundles)
+      i4: vendor must be V-Approved-3 (newly added)             (2 valid bundles)
+      i5: vendor V-Approved-2 + chassis CH-5 (forces GPU-9)    (1 valid bundle)
+
+    V-Approved-3 was appended to /fixtures/E/E1_workstation_procurement.yaml
+    on 2026-04-25 to expand the valid-bundle pool. The canonical v0/v1-v5
+    targets the V-Approved-2 + CH-4 + GPU-7 bundle and is unaffected.
+
+instances:
+  # i1 — instance-specific vendor constraint (V-Approved-1)
+  - id: i1
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget
+      ($4000). The vendor must be V-Approved-1 (TitanGear Inc.). The
+      selected GPU must be compatible with the chosen chassis. Verify
+      vendor approval and chassis/GPU compatibility before submitting.
+    overrides:
+      gold_state:
+        any_valid_bundle_accepted: false
+      oracle_evaluator:
+        final_answer_check:
+          type: exact_field_match
+          expected_fields:
+            vendor_id: V-Approved-1
+
+  # i2 — instance-specific chassis constraint (CH-5)
+  - id: i2
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget
+      ($4000). The chassis must be CH-5 (the mini-tower form factor). Use
+      only approved vendors. The selected GPU must be compatible with this
+      chassis. Verify all constraints before submitting.
+    overrides:
+      gold_state:
+        any_valid_bundle_accepted: false
+      oracle_evaluator:
+        final_answer_check:
+          type: exact_field_match
+          expected_fields:
+            chassis_id: CH-5
+
+  # i3 — instance-specific GPU constraint (GPU-9)
+  - id: i3
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget
+      ($4000). The GPU must be GPU-9 (NV-Mobile-T1000). Use only approved
+      vendors. Verify the chassis is compatible with this GPU before
+      submitting.
+    overrides:
+      gold_state:
+        any_valid_bundle_accepted: false
+      oracle_evaluator:
+        final_answer_check:
+          type: exact_field_match
+          expected_fields:
+            gpu_id: GPU-9
+
+  # i4 — instance-specific vendor constraint (V-Approved-3, newly added)
+  - id: i4
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget
+      ($4000). The vendor must be V-Approved-3 (MetalForge Systems). The
+      selected GPU must be compatible with the chosen chassis. Verify
+      vendor approval and chassis/GPU compatibility before submitting.
+    overrides:
+      gold_state:
+        any_valid_bundle_accepted: false
+      oracle_evaluator:
+        final_answer_check:
+          type: exact_field_match
+          expected_fields:
+            vendor_id: V-Approved-3
+
+  # i5 — joint vendor + chassis constraint (forces specific GPU via compat)
+  - id: i5
+    text: |
+      Set up a procurement plan for a GPU workstation under the team budget
+      ($4000). The vendor must be V-Approved-2 (ProBuilds Co.) and the
+      chassis must be CH-5 (mini-tower form factor). Verify the GPU is
+      compatible with the chassis before submitting.
+    overrides:
+      gold_state:
+        any_valid_bundle_accepted: false
+      oracle_evaluator:
+        final_answer_check:
+          type: exact_field_match
+          expected_fields:
+            vendor_id: V-Approved-2
+            chassis_id: CH-5

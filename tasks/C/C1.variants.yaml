@@ -1,0 +1,45 @@
+task_id: C1
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Each variant exemplifies one axis from task.variant_axes while preserving
+    the branch logic and the gold submission paths (assign_primary if
+    CMP-31's status is active, assign_fallback otherwise). The CMP-31
+    entity name is preserved verbatim across all variants. The
+    status_synonym_noise variant uses synonyms for "active"/"inactive"
+    in the prompt but the model should still inspect the status field
+    in the record itself, where the literal values "active"/"inactive"
+    appear. The reordered_if_else variant flips the order so the
+    fallback case is described first.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Take a look at component CMP-31. If it's currently active, go ahead and assign it to the job. Otherwise, submit the fallback component instead."
+
+  - id: v2
+    axis: distractor_branch_language
+    text: |
+      Check component CMP-31. The original spec called for a much more
+      complicated decision tree, but for this version: if it is active,
+      assign it to the job. If it is inactive, submit the fallback
+      component instead. Ignore the older multi-branch logic that was
+      in the previous spec.
+
+  - id: v3
+    axis: reordered_if_else
+    text: "Check component CMP-31. If it is inactive, submit the fallback component. If it is active, assign it to the job."
+
+  - id: v4
+    axis: status_synonym_noise
+    text: "Check component CMP-31. If it is currently in service, assign it to the job. If it is offline or out of service, submit the fallback component instead."
+
+  - id: v5
+    axis: mild_prompt_clutter
+    text: |
+      Quick favor — we have a job that needs a component assigned.
+      Could you check component CMP-31 and decide what to do? The rule
+      is: if it's active, assign it to the job; if it's inactive, submit
+      the fallback component instead. Thanks for handling this!

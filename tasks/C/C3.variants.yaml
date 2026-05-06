@@ -1,0 +1,30 @@
+task_id: C3
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: APP-55 scores 84 (weighted_score), threshold is 80,
+    decision is approve. All variants must preserve APP-55, the threshold
+    of 80, and the weighted score formula. Distractor fields must not
+    affect the gold computation.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Retrieve the profile for applicant APP-55. Compute the weighted score using skill and experience data, then approve the applicant if the result exceeds 80. Otherwise, reject."
+  - id: v2
+    axis: threshold_expression_variation
+    text: "Look up applicant APP-55 and calculate their weighted score from skill and experience fields. The candidiate should be approved only if their score is no less than 80."
+  - id: v3
+    axis: distractor_fields
+    text: "Pull up applicant APP-55. The record contains interview_score, reference_check, skill, and experience fields. Calculate the weighted score from skill and experience only, and approve if it is above 80."
+  - id: v4
+    axis: formula_rewording
+    text: "For applicant APP-55, compute the composite score derived from skill and experience metrics. If this composite score surpasses 80, grant approval; otherwise, deny the application."
+  - id: v5
+    axis: prompt_clutter
+    text: |
+      We are reviewing batch 12 of this quarter's applicant pool. Applicant APP-55 is next.
+      Please look up their record, calculate the weighted score from skill and experience
+      fields, and approve only if the score is above 80. Ignore any other scoring rubrics
+      for this particlar review.

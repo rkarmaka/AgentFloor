@@ -1,0 +1,40 @@
+task_id: A03
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold fields: vendor_name=Pinnacle Systems Inc., contact_email=raj.m@pinnaclesys.io,
+    location=Toronto, Canada, year_established=2017. All four values must appear
+    verbatim in every variant. Typos only in surrounding filler words.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      From the text below, pull out these fields: vendor_name, contact_email, location, year_established.
+      "Pinnacle Systems Inc. is the vendor in question. Their point of contact, Raj Muthukrishnan, can be reached at raj.m@pinnaclesys.io. The company operates out of Toronto, Canada and has been in business since 2017. They specialize in industrial IoT sensor arrays and report annual revenue of $4.2M USD."
+  - id: v2
+    axis: field_order_variation
+    text: |
+      Extract the following fields from the text below: year_established, location, vendor_name, contact_email.
+      "Vendor: Pinnacle Systems Inc. Contact person is Raj Muthukrishnan (raj.m@pinnaclesys.io). They are based in Toronto, Canada and have been operational since 2017. Their primary offering is industrial IoT sensor arrays. Annual revenue reported at $4.2M USD."
+  - id: v3
+    axis: distractor_fields_in_passage
+    text: |
+      Extract the following fields from the text below: vendor_name, contact_email, location, year_established.
+      "Vendor: Pinnacle Systems Inc. Contact person is Raj Muthukrishnan (raj.m@pinnaclesys.io). They are based in Toronto, Canada and have been operational since 2017. The company employs approximately 38 full-time staff. Their primary offering is industrial IoT sensor arrays. Annual revenue reported at $4.2M USD. They hold ISO 27001 certification and their DUNS number is 07-842-9631."
+  - id: v4
+    axis: passage_format_variation
+    text: |
+      Extract the following fields from the text below: vendor_name, contact_email, location, year_established.
+      "Company Profile — Pinnacle Systems Inc.
+      Headquarters: Toronto, Canada
+      Year Founded: 2017
+      Primary Contact: Raj Muthukrishnan, raj.m@pinnaclesys.io
+      Core Product: Industrial IoT sensor arrays
+      Reported Annual Revenue: $4.2M USD"
+  - id: v5
+    axis: mild_typo
+    text: |
+      Extract the followng fields from the text below: vendor_name, contact_email, location, year_established.
+      "Vendor: Pinnacle Systems Inc. Contct person is Raj Muthukrishnan (raj.m@pinnaclesys.io). They are bsaed in Toronto, Canada and have been opertional since 2017. Their primary offerring is industrial IoT sensor arrays. Annual revnue reported at $4.2M USD."

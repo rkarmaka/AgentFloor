@@ -1,0 +1,26 @@
+task_id: C2
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: DM-8 with approved_version=v2.4. Search returns 3 records
+    (DM-7, DM-8, DM-9) all named "Delta Module". The model must disambiguate
+    by approved_version field. All variants preserve the query "Delta Module"
+    and the gold record DM-8.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Search for Delta Module in the registry. If the search returns more than one match, compare the results and identify which record has the approved version. Report that version number."
+  - id: v2
+    axis: ambiguity_degree
+    text: "There should be a record called Delta Module. Look it up and tell me its approved version. Be aware that the registry might contain several entries with that same name, so you may need to distinguish between them."
+  - id: v3
+    axis: distractor_matches
+    text: "I need the approved version for Delta Module. Note that the registery may contain other modules with similar names, but focus only on Delta Module entries. If there are duplicates, compare them and pick the right one."
+  - id: v4
+    axis: reordered_instructions
+    text: "Compare all Delta Module records if more than one exists, then report the approved version for the correct one. Start by searching for Delta Module."
+  - id: v5
+    axis: alias_variation
+    text: "Find the correct record for Delta Module (also listed as DM series) and report its approved version. If multiple Delta Module records show up, compare them before making your selection."

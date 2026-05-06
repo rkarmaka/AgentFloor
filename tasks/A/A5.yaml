@@ -1,0 +1,74 @@
+task_id: A5
+fixture: fixtures/A/A5_request_queue.yaml
+name: Submit a given decision
+level: A
+category: single_tool_action
+subcategory: direct_submission
+goal: Submit a decision with the exact parameters specified in the prompt.
+difficulty_rationale: Single tool call — tests whether the model can translate an explicit instruction into a valid submission tool call.
+tools_available:
+  - submit_decision
+max_steps: 2
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: request_queue
+  user_intent: submit_approval
+gold_state:
+  target_record_id: REQ-220
+  required_action: approve
+pass_conditions:
+  - correct_tool_called
+  - correct_record_id_passed
+  - correct_action_passed
+  - submission_accepted
+  - within_step_budget
+soft_metrics:
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_argument
+  - tool_call_syntax_error
+  - wrong_action
+  - submission_failure
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - ID_format_noise
+  - reordered_instruction
+  - action_synonym
+  - wording_variation
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      record_id: REQ-220
+      action: approve
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+  submission_check:
+    required: true
+    expected_submission:
+      action: approve
+      record_id: REQ-220
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: No lookup needed — the prompt gives the ID and action directly. The model just needs to produce a valid submit_decision call.
+example_prompt: Submit an approval decision for request REQ-220.
+expected_agent_behavior:
+  - call submit_decision with record_id REQ-220 and action approve
+  - confirm submission

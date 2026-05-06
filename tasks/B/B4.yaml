@@ -1,0 +1,74 @@
+task_id: B4
+fixture: fixtures/B/B4_storage_plans.yaml
+name: List then inspect one option
+level: B
+category: sequential_chaining
+subcategory: list_then_lookup
+goal: List available options, then look up the details of a specific one.
+difficulty_rationale: Two-step chain — model must call list first to discover options, then use a returned ID to look up details.
+tools_available:
+  - list_options
+  - lookup_record
+max_steps: 4
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: storage_plans
+  user_intent: inspect_specific_plan
+gold_state:
+  target_option_id: SP-3
+  target_fields:
+    capacity_gb: 500
+    monthly_price: 45
+pass_conditions:
+  - list_called_first
+  - correct_option_looked_up
+  - correct_details_reported
+  - within_step_budget
+soft_metrics:
+  - num_steps
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - skipped_list_step
+  - wrong_option_inspected
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - distractor_plan_descriptions
+  - reordered_instruction
+  - wording_noise
+  - ID_format_variation
+
+oracle_evaluator:
+  final_answer_check:
+    type: structured_match
+    expected_fields:
+      plan_id: SP-3
+      capacity_gb: 500
+      monthly_price: 45
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+    - lookup_record
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: Model must list first to discover SP-3, then look it up. Directly calling lookup_record(SP-3) without listing first fails trajectory check.
+example_prompt: List the available storage plans and then show me the full details of plan SP-3.
+expected_agent_behavior:
+  - call list_options
+  - identify SP-3 in the returned list
+  - call lookup_record with SP-3
+  - report capacity and price

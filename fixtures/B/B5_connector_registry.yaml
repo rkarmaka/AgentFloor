@@ -1,0 +1,44 @@
+task_id: B5
+domain: connector_registry
+description: >
+  Connector registry for B5. Tests search → submit chaining.
+  Search "Omega Connector" returns OC-77, which is then submitted for processing.
+
+records:
+  OC-77:
+    name: "Omega Connector"
+    type: data_sync
+    version: "1.4.0"
+  OC-78:
+    name: "Omega Connector Lite"
+    type: data_sync
+    version: "1.0.0"
+  AC-12:
+    name: "Alpha Connector"
+    type: file_transfer
+    version: "2.1.0"
+
+search_index:
+  "Omega Connector":
+    - OC-77
+  "Omega":
+    - OC-77
+    - OC-78
+  "Alpha Connector":
+    - AC-12
+
+submission_validator:
+  expected_action: process
+  expected_record_id: OC-77
+  on_match:
+    status: ok
+    submission_id: SUB-B5-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: invalid_submission
+
+gold:
+  query: "Omega Connector"
+  target_record_id: OC-77
+  required_action: process

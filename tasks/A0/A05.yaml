@@ -1,0 +1,83 @@
+task_id: A05
+fixture: null
+name: Answer a factual question from a passage
+level: A0
+category: reading_comprehension
+subcategory: factual_question_answering
+goal: Answer a specific factual question using only information present in the given passage.
+difficulty_rationale: Pure NLU — tests reading comprehension and grounded answering without tool use.
+tools_available: []
+max_steps: 1
+allowed_repair_turns: 0
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: policy_document
+  user_intent: answer_policy_question
+  passage: >
+    All data retention requests must be submitted through the compliance
+    portal before the end of Q2 each fiscal year. Requests submitted after
+    the deadline will be deferred to the next review cycle. The maximum
+    retention extension is 18 months. Requests exceeding 18 months require
+    VP-level sign-off and a written justification referencing the applicable
+    regulatory framework. The compliance team reviews requests in batches
+    every two weeks.
+  question: What is the maximum retention extension that does not require VP approval?
+gold_state:
+  target_answer: 18 months
+pass_conditions:
+  - correct_answer_provided
+  - answer_grounded_in_passage
+  - within_step_budget
+soft_metrics:
+  - response_length
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_answer
+  - no_answer_provided
+  - hallucinated_answer
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - question_rewording
+  - distractor_details_in_passage
+  - passage_length_variation
+  - mild_ambiguity
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      answer: 18 months
+  trajectory_check:
+    require_step_budget: true
+
+trace_requirements:
+  must_call_tools: []
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: hallucinated_facts_not_in_passage
+
+notes_for_evaluator: >
+  Accept "18 months", "18 mo", "18-month" as equivalent. The answer must come
+  from the passage. The question is slightly tricky — the passage says extensions
+  *exceeding* 18 months need VP sign-off, so 18 months is the max without it.
+  A model answering "17 months" or "requires VP approval" has misread.
+example_prompt: >
+  Based on the following policy document, answer the question.
+
+  Document: "All data retention requests must be submitted through the compliance
+  portal before the end of Q2 each fiscal year. Requests submitted after the
+  deadline will be deferred to the next review cycle. The maximum retention
+  extension is 18 months. Requests exceeding 18 months require VP-level sign-off
+  and a written justification referencing the applicable regulatory framework.
+  The compliance team reviews requests in batches every two weeks."
+
+  Question: What is the maximum retention extension that does not require VP approval?
+expected_agent_behavior:
+  - read the passage
+  - locate the relevant sentence
+  - return "18 months"

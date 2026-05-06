@@ -1,0 +1,79 @@
+task_id: A04
+fixture: null
+name: Determine sentiment of a review
+level: A0
+category: classification
+subcategory: sentiment_analysis
+goal: Read a short product review and determine the overall sentiment.
+difficulty_rationale: Pure NLU — tests tone recognition with mixed signals in the text.
+tools_available: []
+max_steps: 1
+allowed_repair_turns: 0
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: product_review
+  user_intent: assess_sentiment
+  passage: >
+    The build quality is honestly impressive for the price point, and the
+    battery lasts a solid two days under normal use. That said, the software
+    is buggy — the companion app crashes at least once a day, and Bluetooth
+    pairing drops randomly. I want to love this product but the software
+    experience makes it hard to recommend right now.
+  valid_labels:
+    - positive
+    - negative
+    - mixed
+gold_state:
+  target_label: mixed
+pass_conditions:
+  - correct_sentiment_assigned
+  - within_step_budget
+soft_metrics:
+  - response_length
+  - total_latency_ms
+primary_failure_labels:
+  - wrong_sentiment
+  - no_sentiment_provided
+  - hallucinated_label
+secondary_failure_labels:
+  - premature_termination
+variant_axes:
+  - paraphrase
+  - sentiment_balance_shift
+  - passage_length_variation
+  - label_order_shuffle
+  - distractor_strong_language
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      sentiment: mixed
+  trajectory_check:
+    require_step_budget: true
+
+trace_requirements:
+  must_call_tools: []
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: label_not_in_valid_set
+      valid_set: [positive, negative, mixed]
+
+notes_for_evaluator: >
+  The passage has clear positive (build, battery) and negative (software, app crashes)
+  signals. Correct answer is "mixed." Accepting only "positive" or only "negative" fails.
+  This tests whether the model handles ambivalent input rather than defaulting to one pole.
+example_prompt: >
+  What is the overall sentiment of the following review? Choose one: positive, negative, mixed.
+
+  "The build quality is honestly impressive for the price point, and the battery lasts
+  a solid two days under normal use. That said, the software is buggy — the companion
+  app crashes at least once a day, and Bluetooth pairing drops randomly. I want to love
+  this product but the software experience makes it hard to recommend right now."
+expected_agent_behavior:
+  - read the review
+  - weigh positive and negative signals
+  - return "mixed"

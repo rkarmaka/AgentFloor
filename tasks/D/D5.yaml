@@ -1,0 +1,78 @@
+task_id: D5
+fixture: fixtures/D/D5_connector_selection.yaml
+name: Backtrack after contradiction
+level: D
+category: multi_source_reasoning
+subcategory: contradiction_driven_backtracking
+goal: Revise an earlier choice when later evidence contradicts it.
+difficulty_rationale: Tests backtracking rather than stubborn continuation.
+tools_available:
+  - search_records
+  - lookup_record
+  - check_constraint
+max_steps: 8
+allowed_repair_turns: 2
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: connector_selection
+  user_intent: choose_connector_with_constraints
+gold_state:
+  hard_constraints:
+    encrypted_transfer: true
+    nightly_scheduling: true
+  tempting_but_invalid_option_id: CN-2
+  valid_target_option_id: CN-5
+pass_conditions:
+  - contradiction_detected
+  - invalid_initial_choice_abandoned
+  - valid_alternative_selected
+  - final_choice_satisfies_constraints
+soft_metrics:
+  - recovery_success
+  - constraint_preservation
+  - num_tool_calls
+primary_failure_labels:
+  - contradiction_ignored
+  - constraint_violation
+  - backtracking_failure
+secondary_failure_labels:
+  - repeated_invalid_reasoning
+variant_axes:
+  - paraphrase
+  - distractor_connector_strength
+  - reordered_constraints
+  - wording_noise
+  - candidate_order_shuffle
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_connector: CN-5
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_recovery: true
+    require_backtracking: true
+    require_contradiction_detected: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+    - lookup_record
+    - check_constraint
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: persist_after_contradiction
+      invalid_option: CN-2
+
+notes_for_evaluator: If agent continues with contradicted candidate, task fails even if answer text is confident.
+example_prompt: Choose the best connector for dataset sync, making sure it supports encrypted transfer and nightly scheduling.
+expected_agent_behavior:
+  - search connectors
+  - make initial candidate choice
+  - inspect capability details
+  - notice contradiction
+  - backtrack and choose valid connector

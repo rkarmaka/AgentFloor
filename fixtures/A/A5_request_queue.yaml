@@ -1,0 +1,26 @@
+task_id: A5
+domain: request_queue
+description: >
+  Request queue for A5. Tests a single submit_decision call.
+  REQ-220 is the explicit submission target — no lookup needed.
+
+records:
+  REQ-220:
+    title: "Production deploy approval"
+    status: ready
+    submitter: "team-platform"
+
+submission_validator:
+  expected_action: approve
+  expected_record_id: REQ-220
+  on_match:
+    status: ok
+    submission_id: SUB-A5-001
+    accepted: true
+  on_mismatch:
+    status: error
+    error_type: invalid_submission
+
+gold:
+  target_record_id: REQ-220
+  required_action: approve

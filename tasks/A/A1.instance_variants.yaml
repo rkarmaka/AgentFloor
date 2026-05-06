@@ -1,0 +1,76 @@
+task_id: A1
+generator:
+  by: claude-opus-4-7-1m
+  generated_at: 2026-04-25T00:00:00+00:00
+  source: hand_crafted_for_input_instance_ablation
+  notes: |
+    Five instance variants for the input-instance ablation (Step 4 of the
+    NeurIPS execution guide). Each instance preserves the task template
+    exactly — single lookup_record call to retrieve a status field — but
+    targets a different concrete record so the expected answer changes per
+    instance. Records P201/P105/P310 already existed in the fixture; P407
+    and P512 were appended on 2026-04-25 to expand the pool.
+
+    Status mix across the 5 instances: 2 active, 2 inactive, 1 deprecated.
+    The canonical v0/v1-v5 baseline targets P104 (active) and is unaffected.
+
+    Prompt phrasing is held identical to the canonical example_prompt
+    template ("Look up product record <ID> and tell me its current status.")
+    so the only thing that varies is the entity. This isolates the
+    instance-vs-prompt comparison from prompt-style confounds.
+
+instances:
+  - id: i1
+    text: "Look up product record P201 and tell me its current status."
+    overrides:
+      gold_state:
+        target_record_id: P201
+        target_value: active
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            status: active
+
+  - id: i2
+    text: "Look up product record P105 and tell me its current status."
+    overrides:
+      gold_state:
+        target_record_id: P105
+        target_value: inactive
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            status: inactive
+
+  - id: i3
+    text: "Look up product record P310 and tell me its current status."
+    overrides:
+      gold_state:
+        target_record_id: P310
+        target_value: deprecated
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            status: deprecated
+
+  - id: i4
+    text: "Look up product record P407 and tell me its current status."
+    overrides:
+      gold_state:
+        target_record_id: P407
+        target_value: active
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            status: active
+
+  - id: i5
+    text: "Look up product record P512 and tell me its current status."
+    overrides:
+      gold_state:
+        target_record_id: P512
+        target_value: inactive
+      oracle_evaluator:
+        final_answer_check:
+          expected_fields:
+            status: inactive

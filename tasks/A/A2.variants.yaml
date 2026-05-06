@@ -1,0 +1,40 @@
+task_id: A2
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Each variant exemplifies one axis from task.variant_axes while preserving
+    the gold answer reachability (target_record_id: SUP-104). The fixture's
+    search_index has 'Pinnacle Systems' as a registered exact match, so all
+    variants keep that canonical phrase intact. The entity_alias variant
+    surfaces 'Pinnacle' as an internal nickname but keeps the canonical
+    name in the prompt so the model has a clean search term to use.
+    Typos are in surrounding words only, never in 'Pinnacle Systems'.
+
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "I need the record ID of the supplier called Pinnacle Systems — can you find it?"
+
+  - id: v2
+    axis: entity_alias
+    text: |
+      Look up our partner Pinnacle Systems (the team sometimes refers to
+      them internally as just "Pinnacle") and give me their record ID.
+
+  - id: v3
+    axis: distractor_text
+    text: |
+      Procurement is updating the supplier registry this week and we have
+      a few sync issues to resolve. To start, search for the supplier
+      called Pinnacle Systems and tell me its record ID. I'll need it for
+      the data export later today.
+
+  - id: v4
+    axis: reordered_instruction
+    text: "Tell me the record ID for Pinnacle Systems. You'll need to search the supplier registry to find it."
+
+  - id: v5
+    axis: mild_typo
+    text: "Search for the supplier calld Pinnacle Systems and tell me its record id."

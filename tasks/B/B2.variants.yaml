@@ -1,0 +1,29 @@
+task_id: B2
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer is SUP-104 with reliability_score = 92. The two-step
+    chain is lookup_record then get_attribute. attribute_name_rewording
+    uses natural-language synonyms for "reliability_score".
+    identifier_formatting_noise applies cosmetic transforms to SUP-104.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Find supplier SUP-104 in the records and report its reliability score."
+  - id: v2
+    axis: attribute_name_rewording
+    text: "Look up supplier SUP-104 and tell me its dependability rating."
+  - id: v3
+    axis: distractor_context
+    text: |
+      We're comparing three suppliers for the Q3 procurement cycle.
+      Start by looking up supplier SUP-104 and tell me its reliability
+      score so we can add it to the spreadsheet.
+  - id: v4
+    axis: reordered_instruction
+    text: "What is the reliability score for SUP-104? Look up that supplier and get me the value."
+  - id: v5
+    axis: identifier_formatting_noise
+    text: "Look up supplier sup-104 and tell me its reliability score."

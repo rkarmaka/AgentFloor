@@ -1,0 +1,66 @@
+# vLLM "rescue" sweep — models that text_leaked on Ollama but may work on vLLM
+# with explicit tool-call-parser selection.
+#
+# vLLM serves one model per server. Start each server separately, then run
+# the sweep filtered to that model.
+#
+# Per-model server commands (examples):
+#
+#   # Phi-4 Mini — needs phi4_mini_json parser explicitly
+#   vllm serve microsoft/Phi-4-mini-instruct \
+#       --enable-auto-tool-choice --tool-call-parser phi4_mini_json --port 8000
+#
+#   # Granite 3.2 — uses granite parser
+#   vllm serve ibm-granite/granite-3.2-8b-instruct \
+#       --enable-auto-tool-choice --tool-call-parser granite --port 8000
+#
+#   # Qwen 2.5 Coder — use hermes parser (same as non-coder Qwen 2.5)
+#   vllm serve Qwen/Qwen2.5-Coder-14B-Instruct-AWQ \
+#       --enable-auto-tool-choice --tool-call-parser hermes --port 8000
+#
+#   # Mistral Small — mistral parser
+#   vllm serve mistralai/Mistral-Small-3.1-24B-Instruct-2503 \
+#       --enable-auto-tool-choice --tool-call-parser mistral --port 8000
+#
+# Then filter to the one model being served:
+#   python runs/run_sweep.py --config sweep_configs/vllm_rescue.yaml \
+#       --models microsoft/Phi-4-mini-instruct
+
+sweep_name: vllm_rescue
+backend: vllm
+base_url: http://localhost:8000/v1
+results_dir: results
+max_output_tokens: 1024
+auto_pull: false
+auto_stop: false
+compat_out: results/vllm_compatibility.yaml
+
+models:
+  - name: microsoft/Phi-4-mini-instruct
+    params_b: 3.8
+    tier: 3b4b
+    notes: "Server needs --tool-call-parser phi4_mini_json"
+  - name: ibm-granite/granite-3.2-2b-instruct
+    params_b: 2.0
+    tier: sub3b
+    notes: "Server needs --tool-call-parser granite; tool-calling trained"
+  - name: ibm-granite/granite-3.2-8b-instruct
+    params_b: 8.0
+    tier: 7b9b
+    notes: "Server needs --tool-call-parser granite; tool-calling trained"
+  - name: Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
+    params_b: 14.0
+    tier: 12b14b
+    notes: "Server needs --tool-call-parser hermes (same as non-coder Qwen 2.5)"
+  - name: Qwen/Qwen2.5-Coder-32B-Instruct-AWQ
+    params_b: 32.0
+    tier: 21b35b
+    notes: "Server needs --tool-call-parser hermes"
+  - name: mistralai/Mistral-Small-3.1-24B-Instruct-2503
+    params_b: 24.0
+    tier: 21b35b
+    notes: "Server needs --tool-call-parser mistral"
+
+tasks: all
+variants: [v0]
+runs_per_combo: 1

@@ -1,0 +1,46 @@
+task_id: C2
+domain: version_registry
+description: >
+  Version registry for C2. Tests count-based branching.
+  Canonical: search "Delta Module" returns 3 matches; model must compare and pick DM-8 (approved_version=v2.4).
+  Single-match variants have only DM-8 returned by search.
+
+records:
+  DM-7:
+    name: "Delta Module"
+    approved_version: "v2.1"
+    last_updated: "2025-08-20"
+    region: us-west
+  DM-8:
+    name: "Delta Module"
+    approved_version: "v2.4"
+    last_updated: "2026-03-01"
+    region: us-east
+  DM-9:
+    name: "Delta Module"
+    approved_version: "v1.9"
+    last_updated: "2025-04-12"
+    region: eu-central
+  EM-2:
+    name: "Epsilon Module"
+    approved_version: "v3.0"
+    last_updated: "2026-02-10"
+    region: us-east
+
+search_index:
+  "Delta Module":
+    - DM-7
+    - DM-8
+    - DM-9
+  "Epsilon Module":
+    - EM-2
+
+disambiguation_rule:
+  criterion: most_recent_approved_version
+  tie_breaker: latest_last_updated
+
+gold:
+  query: "Delta Module"
+  expected_match_count: 3
+  target_record_id: DM-8
+  expected_approved_version: "v2.4"

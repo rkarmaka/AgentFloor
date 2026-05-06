@@ -1,0 +1,36 @@
+task_id: A02
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer requires: payment_service_failure, rate_limiter_misconfiguration,
+    duration_or_impact. Every variant passage must contain all three facts.
+    Typos only in filler words, never in "payment processing", "rate limiter",
+    or numeric values (47 minutes, 8200 transactions, etc.).
+variants:
+  - id: v1
+    axis: paraphrase
+    text: |
+      Summarize the following incident report in one sentence:
+      "At 14:22 UTC on April 3rd, a misconfigured rate limiter on the API gateway let through roughly 12 times the expected traffic volume. The payment processing service buckled as its downstream database connection pool drained in about 90 seconds, returning 503 errors on every checkout attempt. Around 8,200 transactions were impacted over the course of 47 minutes. Investigation traced the root cause to a configuration deployment that inadvertently stripped the per-client rate cap."
+  - id: v2
+    axis: passage_length_variation
+    text: |
+      Summarize the following incident report in one sentence:
+      "On April 3rd at 14:22 UTC, the payment processing service suffered a cascading failure triggered by a misconfigured rate limiter. The limiter, which normally enforces a per-client request cap, had its cap removed during a routine config push earlier that morning. With the cap gone, traffic surged to 12x normal levels through the gateway. The downstream PostgreSQL connection pool — sized for typical load — was exhausted within 90 seconds. All checkout requests began returning 503 errors. The on-call SRE was paged at 14:24 UTC but initial triage focused on the database, delaying identification of the true cause. The incident lasted 47 minutes in total and affected approximately 8,200 transactions. A hotfix restoring the rate cap was deployed at 15:09 UTC, and full service recovery was confirmed by 15:14 UTC."
+  - id: v3
+    axis: distractor_details
+    text: |
+      Summarize the following incident report in one sentence:
+      "On April 3rd at 14:22 UTC, the payment processing service experienced a cascading failure after a misconfigured rate limiter allowed 12x normal traffic through the gateway. CPU utilization on the gateway nodes spiked to 97%, and memory pressure triggered two OOM kills on auxiliary logging sidecars. The downstream database connection pool was exhausted within 90 seconds, causing all checkout requests to return 503 errors. Separately, the monitoring dashboard experienced a brief rendering glitch unrelated to the outage. The incident lasted 47 minutes and affected approximately 8,200 transactions. The root cause was a config push that removed the per-client rate cap. A post-mortem is scheduled for April 10th."
+  - id: v4
+    axis: reordered_events
+    text: |
+      Summarize the following incident report in one sentence:
+      "The root cause was identified as a config push that removed the per-client rate cap from the API gateway. This allowed approximately 12x normal traffic to flow through unchecked, which in turn exhausted the downstream database connection pool within 90 seconds. As a result, the payment processing service entered a cascading failure state on April 3rd at 14:22 UTC, and all checkout requests began returning 503 errors. The incident lasted 47 minutes and impacted roughly 8,200 transactions before the rate limiter configuration was restored."
+  - id: v5
+    axis: mild_typo
+    text: |
+      Summarize the following incident report in one sentance:
+      "On April 3rd at 14:22 UTC, the payment processing service experiened a cascading failure after a misconfigured rate limiter allowed 12x normal traffic throught the gateway. The downstream databse connection pool was exhausted within 90 seconds, causeing all checkout requests to return 503 errors. The incident lasted 47 minutes and affected approximately 8,200 transactions. The root cause was a config push that removed the per-client rate cap."

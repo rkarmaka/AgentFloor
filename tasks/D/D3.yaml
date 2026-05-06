@@ -1,0 +1,78 @@
+task_id: D3
+fixture: fixtures/D/D3_hosting_plans.yaml
+name: Multi-constraint option selection
+level: D
+category: multi_source_reasoning
+subcategory: multi_constraint_filtering
+goal: Select an option satisfying budget, GPU support, and uptime requirements.
+difficulty_rationale: Tests conjunctive constraint reasoning with multiple candidate options.
+tools_available:
+  - list_options
+  - check_constraint
+  - compare_records
+max_steps: 8
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: hosting_plan_selection
+  user_intent: choose_valid_plan
+gold_state:
+  hard_constraints:
+    budget_max: 300
+    gpu_required: true
+    uptime_min: 99.9
+  target_option_id: HP-2
+pass_conditions:
+  - all_hard_constraints_applied
+  - invalid_options_rejected
+  - best_valid_option_selected
+soft_metrics:
+  - constraint_preservation
+  - num_tool_calls
+  - redundant_calls
+primary_failure_labels:
+  - constraint_violation
+  - incomplete_filtering
+  - wrong_candidate_selection
+secondary_failure_labels:
+  - premature_answer
+variant_axes:
+  - paraphrase
+  - distractor_high_performance_option
+  - reordered_constraints
+  - numeric_format_variation
+  - wording_noise
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      selected_plan: HP-2
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+    require_all_constraints_checked:
+      - budget_max
+      - gpu_required
+      - uptime_min
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+  optional_tools:
+    - check_constraint
+    - compare_records
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+    - type: partial_constraint_check
+      required_constraints: 3
+
+notes_for_evaluator: Selection must satisfy all three constraints; partial compliance fails.
+example_prompt: Pick a hosting plan that fits under budget, supports GPU acceleration, and has at least 99.9 percent uptime.
+expected_agent_behavior:
+  - list plans
+  - filter against all constraints
+  - compare valid remainder
+  - return correct option

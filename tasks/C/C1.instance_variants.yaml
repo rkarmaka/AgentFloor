@@ -1,0 +1,77 @@
+task_id: C1
+generator:
+  by: claude-opus-4-7-1m
+  generated_at: 2026-04-25T00:00:00+00:00
+  source: hand_crafted_for_input_instance_ablation
+  notes: |
+    Five instance variants for the input-instance ablation. Each preserves
+    the binary-branch decision template (lookup component, branch on status,
+    submit primary or fallback) but targets a different component.
+
+    Branch distribution across the 5 instances: 2 primary, 3 fallback.
+    Deliberately weighted toward fallback because the canonical v0/v1-v5
+    only exercises the primary branch (CMP-31 is active). External-validity
+    requires exercising both branches.
+
+    Methodological note (instance variants only): instance prompts ask the
+    model to include both `record_id` and `action` in the submission. This
+    is required because the fixture's branch_rules host rules for multiple
+    records simultaneously, and the validator
+    (harness/db.py:_validate_branch_submission) was extended on
+    2026-04-25 to scope branch_rules by submission record_id when present.
+    v0-v5 prompts don't include record_id and continue to use the original
+    first-match-wins behavior unchanged.
+
+    Records CMP-33 through CMP-36 were appended to
+    /fixtures/C/C1_component_assignment.yaml on 2026-04-25.
+
+instances:
+  # i1 — CMP-32 is active → primary branch
+  - id: i1
+    text: |
+      Check component CMP-32. If it is active, submit assign_primary;
+      if it is inactive, submit assign_fallback. Your submission must
+      include both record_id (CMP-32) and action.
+    overrides:
+      gold_state:
+        target_record_id: CMP-32
+
+  # i2 — CMP-33 is inactive → fallback branch
+  - id: i2
+    text: |
+      Check component CMP-33. If it is active, submit assign_primary;
+      if it is inactive, submit assign_fallback. Your submission must
+      include both record_id (CMP-33) and action.
+    overrides:
+      gold_state:
+        target_record_id: CMP-33
+
+  # i3 — CMP-34 is inactive → fallback branch
+  - id: i3
+    text: |
+      Check component CMP-34. If it is active, submit assign_primary;
+      if it is inactive, submit assign_fallback. Your submission must
+      include both record_id (CMP-34) and action.
+    overrides:
+      gold_state:
+        target_record_id: CMP-34
+
+  # i4 — CMP-35 is active → primary branch
+  - id: i4
+    text: |
+      Check component CMP-35. If it is active, submit assign_primary;
+      if it is inactive, submit assign_fallback. Your submission must
+      include both record_id (CMP-35) and action.
+    overrides:
+      gold_state:
+        target_record_id: CMP-35
+
+  # i5 — CMP-36 is inactive → fallback branch
+  - id: i5
+    text: |
+      Check component CMP-36. If it is active, submit assign_primary;
+      if it is inactive, submit assign_fallback. Your submission must
+      include both record_id (CMP-36) and action.
+    overrides:
+      gold_state:
+        target_record_id: CMP-36

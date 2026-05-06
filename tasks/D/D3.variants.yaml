@@ -1,0 +1,30 @@
+task_id: D3
+generator:
+  by: claude-opus-4-6
+  generated_at: 2026-04-12T20:30:00+00:00
+  source: hand_crafted_via_claude_code_session
+  notes: |
+    Gold answer: HP-2 satisfies all three constraints (budget<=300,
+    gpu_required=true, uptime>=99.9%). All variants must preserve these
+    three hard constraints exactly. Distractor options may be mentioned
+    but must not change the constraint values.
+variants:
+  - id: v1
+    axis: paraphrase
+    text: "Select a hosting plan that meets all of the following requirements: the monthly cost must be within budget, GPU acceleration must be available, and uptime must be at least 99.9 percent."
+  - id: v2
+    axis: distractor_high_performance_option
+    text: "Pick a hosting plan that fits under budget, supports GPU acceleration, and has at least 99.9 percent uptime. Some premium plans offer 10x GPU clusters and dedicated hardware, but only choose a plan that satisfies all three contraints."
+  - id: v3
+    axis: reordered_constraints
+    text: "Find a hosting plan with at least 99.9 percent uptime that also supports GPU acceleration and costs no more than the budget allows."
+  - id: v4
+    axis: numeric_format_variation
+    text: "Choose a hosting plan costing no more than three hundred dollars, with GPU support enabled and an uptime guarantee of 99.9% or higher."
+  - id: v5
+    axis: wording_noise
+    text: |
+      Our team needs a new hosting plan for the ML pipeline. The plan must fit
+      under the $300 budget ceiling, provide GPU acceleration for model training,
+      and guarentee at least 99.9 percent uptime. Please identify the best
+      option that satisfies all of these requirements.

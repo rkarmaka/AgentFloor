@@ -1,0 +1,26 @@
+# Smoke test sweep — quick sanity check for the sweep runner
+# 2 models x 3 tasks x v0 x 1 run = 6 runs total
+# Should take 1-2 minutes on a warm Ollama setup.
+#
+# Usage:
+#   python runs/run_sweep.py --config sweep_configs/smoke.yaml --dry-run
+#   python runs/run_sweep.py --config sweep_configs/smoke.yaml --eval
+
+sweep_name: smoke
+backend: ollama
+base_url: http://localhost:11434/v1
+results_dir: results
+max_output_tokens: 1024
+compat_out: results/ollama_compatibility.yaml
+
+models:
+  - name: qwen2.5:7b
+    params_b: 7.0
+    tier: 7b9b
+  - name: llama3.1:8b
+    params_b: 8.0
+    tier: 7b9b
+
+tasks: [A1, B1, C1]
+variants: [v0]
+runs_per_combo: 1

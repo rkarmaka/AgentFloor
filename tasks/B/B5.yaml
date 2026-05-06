@@ -1,0 +1,80 @@
+task_id: B5
+fixture: fixtures/B/B5_connector_registry.yaml
+name: Find record then submit for processing
+level: B
+category: sequential_chaining
+subcategory: search_then_submit
+goal: Search for a record by name and submit it for processing.
+difficulty_rationale: Two-step chain across different tool types — model must carry the found ID into a submission call. No branching — submission is unconditional.
+tools_available:
+  - search_records
+  - submit_decision
+max_steps: 4
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: true
+initial_context:
+  domain: connector_registry
+  user_intent: submit_for_processing
+gold_state:
+  query: Omega Connector
+  target_record_id: OC-77
+  required_action: process
+pass_conditions:
+  - correct_record_found
+  - correct_id_submitted
+  - correct_action_submitted
+  - submission_accepted
+  - within_step_budget
+soft_metrics:
+  - num_steps
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - search_selection_error
+  - wrong_id_submitted
+  - wrong_action
+  - submission_failure
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - distractor_search_results
+  - entity_alias
+  - reordered_instruction
+  - wording_variation
+
+oracle_evaluator:
+  final_answer_check:
+    type: exact_field_match
+    expected_fields:
+      record_id: OC-77
+      action: process
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+  submission_check:
+    required: true
+    expected_submission:
+      record_id: OC-77
+      action: process
+    require_submission_accepted: true
+
+trace_requirements:
+  must_call_tools:
+    - search_records
+    - submit_decision
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: This is an unconditional chain — there is no "if" condition. The model always searches and then submits. Tests tool chaining across different tool types (retrieval → action).
+example_prompt: Find the record for Omega Connector and submit it for processing.
+expected_agent_behavior:
+  - call search_records with "Omega Connector"
+  - extract OC-77 from results
+  - call submit_decision with record_id OC-77, action process
+  - confirm submission

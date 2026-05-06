@@ -1,0 +1,74 @@
+task_id: A4
+fixture: fixtures/A/A4_storage_plans.yaml
+name: List available options
+level: A
+category: single_tool_retrieval
+subcategory: list_and_report
+goal: Call a listing tool and report the number of options and their IDs.
+difficulty_rationale: Single tool call — tests whether the model can invoke a list tool and accurately read a structured response.
+tools_available:
+  - list_options
+max_steps: 2
+allowed_repair_turns: 1
+deterministic: true
+requires_final_submission: false
+initial_context:
+  domain: storage_plans
+  user_intent: enumerate_plans
+gold_state:
+  expected_count: 4
+  expected_ids:
+    - SP-1
+    - SP-2
+    - SP-3
+    - SP-4
+pass_conditions:
+  - correct_tool_called
+  - correct_count_reported
+  - all_ids_listed
+  - within_step_budget
+soft_metrics:
+  - num_tool_calls
+  - invalid_tool_calls
+  - total_latency_ms
+primary_failure_labels:
+  - tool_call_syntax_error
+  - wrong_count
+  - missing_ids
+  - final_answer_incorrect
+secondary_failure_labels:
+  - premature_termination
+  - step_budget_exceeded
+variant_axes:
+  - paraphrase
+  - reordered_instruction
+  - distractor_text
+  - wording_noise
+  - mild_typo
+
+oracle_evaluator:
+  final_answer_check:
+    type: structured_match
+    expected_fields:
+      count: 4
+      ids:
+        type: set_match
+        expected: [SP-1, SP-2, SP-3, SP-4]
+  trajectory_check:
+    require_step_budget: true
+    require_valid_tool_arguments: true
+
+trace_requirements:
+  must_call_tools:
+    - list_options
+  optional_tools: []
+  forbidden_behaviors:
+    - type: hallucinated_tool
+    - type: terminate_without_answer
+
+notes_for_evaluator: Model must call list_options once and faithfully report what it returns. No filtering or selection needed.
+example_prompt: List all available storage plans and tell me how many there are along with their IDs.
+expected_agent_behavior:
+  - call list_options
+  - count returned options
+  - report count and all IDs
