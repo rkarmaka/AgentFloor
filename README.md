@@ -230,6 +230,29 @@ python runs/run_sweep.py --config sweep_configs/frontier_anchor.yaml --eval
 python runs/run_metrics.py results/ --subset paper_baseline
 ```
 
+### Skip the sweep — download the scored corpus
+
+The full 16,542-run scored corpus is published as a release artifact
+(25 MB compressed):
+
+```bash
+# Download and unpack the run corpus + judge cache
+mkdir -p results
+curl -L -o /tmp/agentfloor-runs-v1.tar.gz \
+  https://github.com/rkarmaka/AgentFloor/releases/download/v1.0-data/agentfloor-runs-v1.tar.gz
+curl -L -o results/llm_judge_cache.jsonl \
+  https://github.com/rkarmaka/AgentFloor/releases/download/v1.0-data/llm_judge_cache.jsonl
+tar -xzf /tmp/agentfloor-runs-v1.tar.gz
+
+# Reproduce Tables 1 and 2 from the paper
+AGENTFLOOR_LLM_JUDGE=1 python runs/run_metrics.py results/
+```
+
+See the [v1.0-data release](https://github.com/rkarmaka/AgentFloor/releases/tag/v1.0-data)
+for SHA-256 checksums and citation info. Re-scoring the corpus on this
+branch (`runs/rescore_diff.py`) flips 0 of 16,542 TCR verdicts vs the
+published numbers; 98.96% are bit-identical.
+
 ### Re-scoring without re-running
 
 The scorer is decoupled from the runner. If the scoring code changes, you
