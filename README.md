@@ -1,27 +1,55 @@
 # AgentFloor
 
-A benchmark for evaluating LLM agents on multi-step tool-calling tasks across
-six difficulty tiers, from pure-NLU baselines (A0) to long-horizon planning
-under uncertainty (E).
+> **AgentFloor: How Far Up the Tool-Use Ladder Can Small Open-Weight Models Go?**
+> Ranit Karmakar, Jayita Chatterjee
+> arXiv preprint [2605.00334](https://arxiv.org/abs/2605.00334), May 2026.
 
-The benchmark ships 30 tasks (5 per tier × 6 tiers), 5 prompt variants per
-task, instance variants for a 4-task ablation subset, fixtures the tools
-operate on, a runner that drives any LLM provider, and a scorer that produces
-the headline TCR / SDR / THI / LSR / ERR / ERT metrics.
+A deterministic, capability-tiered benchmark for evaluating LLM agents on
+multi-step tool-calling tasks. AgentFloor isolates progressively harder
+cognitive demands across six tiers — from instruction-following without
+tools (A0) through long-horizon planning under persistent constraints (E)
+— inside a fixed abstract-tool environment with no filesystem, no live
+APIs, and no plausible route to pretraining-corpus contamination.
 
-## Repository layout
+## Headline finding
+
+Across 16,542 scored runs spanning 16 open-weight models (0.27B–32B) plus
+GPT-5 as the frontier anchor, the strongest open-weight model
+(`gemma4:26b`) is statistically equivalent to GPT-5 in aggregate
+(Δ = +0.4 pp; 90% CI [−5.1, +5.8]) at substantially lower cost and
+latency. The frontier advantage concentrates almost entirely on the E
+tier (long-horizon planning); on A0/A/B/C/D, small or mid-scale
+open-weight models match or beat GPT-5 in our corpus. See the paper for
+the full per-tier TOST equivalence analysis, capability heatmap, and
+failure-mode cascade.
+
+## What's in this repo
+
+The full benchmark, harness, sweep configurations, and re-scoring tools.
 
 | Path | What's there |
 |---|---|
-| `tasks/{A0,A,B,C,D,E}/` | Task YAMLs (`<id>.yaml`), prompt variants (`<id>.variants.yaml`), and instance variants (`<id>.instance_variants.yaml`) |
-| `tasks/registry.yaml` | The list of 30 active tasks, level descriptions, defaults |
-| `tasks/task_template.yaml` | Reference of the task-YAML field set |
-| `fixtures/{A,B,C,D,E}/` | YAML data the tools operate on, one per fixture-using task |
+| `tasks/{A0,A,B,C,D,E}/` | 30 task YAMLs, 5 prompt-variant files (`<id>.variants.yaml`), and 4 instance-variant files (`A1`/`B1`/`C1`/`E1`) |
+| `tasks/registry.yaml` | Active-task list, level descriptions, defaults |
+| `tasks/task_template.yaml` | Reference for the task-YAML field set |
+| `fixtures/{A,B,C,D,E}/` | YAML data the tools operate on (24 fixtures) |
 | `harness/` | Runner, evaluator, metrics, providers, eval checks |
-| `harness/eval_checks/` | The four scoring families: `final_answer`, `submission`, `trajectory`, `forbidden`, plus `llm_judge` for predicates needing semantic judgment |
-| `harness/providers/` | Provider adapters for Anthropic, OpenAI, Gemini, and any OpenAI-compatible server (vLLM, Ollama, NIM, Together, etc.) |
-| `runs/` | Entry-point scripts: `run_sweep.py` (batch), `run_metrics.py` (aggregate), and one-off scripts per backend |
-| `sweep_configs/` | YAML configs for the sweeps reported in the paper |
+| `harness/eval_checks/` | Four scoring families (`final_answer`, `submission`, `trajectory`, `forbidden`) plus `llm_judge` for the two semantic predicates |
+| `harness/providers/` | Adapters for Anthropic, OpenAI, Gemini, and any OpenAI-compatible server (vLLM, Ollama, NIM, Together, …) |
+| `runs/` | Entry-point scripts: `run_sweep.py` (batch with resume), `run_metrics.py` (aggregate), `rescore_diff.py` (re-score without re-running), and per-backend launchers |
+| `sweep_configs/` | Every sweep referenced in the paper, ready to launch |
+
+## Citation
+
+```bibtex
+@article{karmakar2026agentfloor,
+  title   = {{AgentFloor}: How Far Up the Tool-Use Ladder Can Small Open-Weight Models Go?},
+  author  = {Karmakar, Ranit and Chatterjee, Jayita},
+  journal = {arXiv preprint arXiv:2605.00334},
+  year    = {2026},
+  url     = {https://arxiv.org/abs/2605.00334},
+}
+```
 
 ## Requirements
 
@@ -118,16 +146,17 @@ Key fields:
 
 ## Variants and instance variants
 
-Two orthogonal axes of variation:
+Two orthogonal axes of variation, both checked into the repo:
 
 - **Prompt variants** (`<task>.variants.yaml`, `v1`–`v5`): five hand-crafted
   rephrasings of the same task along the five axes declared in
-  `variant_axes` (e.g. paraphrase, distractor text, ID-format noise,
-  reordered instruction, mild typo). `v0` is the original `example_prompt`.
-  Every task ships variants.
+  `variant_axes` (paraphrase, distractor text, ID-format noise, reordered
+  instruction, mild typo). `v0` is the original `example_prompt`. Every
+  task ships variants. E1 additionally ships `v6_explicit` and
+  `v7_explicit` for the explicit-submission ablation (paper §5.2).
 - **Instance variants** (`<task>.instance_variants.yaml`, `i1`–`i5`):
-  alternative `gold_state` overrides, used for the input-instance ablation.
-  Only A1, B1, C1, E1 ship instance variants today.
+  alternative `gold_state` overrides, used for the input-instance
+  ablation. A1, B1, C1, E1 ship instance variants.
 
 ## Scoring
 
@@ -155,37 +184,49 @@ return a stubbed PASS (with `stubbed=True` recorded in the per-check
 details). This is by design: canonical baseline runs are scored without
 calling an external API, and the per-cell stubbed-coverage table prints
 alongside the TCR table so consumers can see which cells leaned on a
-default-pass. To run the LLM judge (≈ $0.50–$2 per 1M tokens on
+default-pass. To run the LLM judge (≈ $0.50/$2.00 per 1M in/out tokens on
 `gpt-5-nano`), export `AGENTFLOOR_LLM_JUDGE=1` and `OPENAI_API_KEY`
-before invoking the scorer. Predicates affected: `hallucinated_facts_not_in_passage`
-(A02/A03/A05) and `inconsistent_recovery_and_submission` (E5), plus the
-`element_coverage` keyword fallback.
+before invoking the scorer. Predicates affected:
+`hallucinated_facts_not_in_passage` (A02/A03/A05) and
+`inconsistent_recovery_and_submission` (E5), plus the `element_coverage`
+keyword fallback.
 
 ## Reproducing paper numbers
 
 Each sweep config in `sweep_configs/` corresponds to a block of paper
-results:
+results.
 
-| Config | What it produces |
-|---|---|
-| `frontier_anchor.yaml` | Closed-source frontier anchor (gpt-5, claude-sonnet-4-6, gemini-2.5-pro) |
-| `api_frontier.yaml` | Cheaper frontier APIs |
-| `ollama_full.yaml`, `ollama_full_pass2.yaml` | Open-source SLM sweep via Ollama |
-| `vllm_colab.yaml`, `vllm_rescue.yaml` | vLLM-served open models |
-| `nim_slm.yaml` | NVIDIA NIM-hosted open models |
-| `cross_backend_vllm.yaml` | Same model on multiple backends (consistency check) |
-| `instance_ablation.yaml` | Input-instance ablation (i1–i5 on 4 tasks) |
-| `e_explicit_ablation.yaml` | E-tier prompt-explicitness ablation |
-| `reasoning_effort_ablation.yaml` | Reasoning-effort ablation on reasoning models |
-| `structured_prompt_ablation.yaml` | Structured-prompt scaffolding ablation |
-| `qwen3_nothink_ablation.yaml` | Qwen3 thinking-vs-no-thinking ablation |
-| `gpt5_de_max_steps.yaml` | gpt-5 D/E step-budget ablation |
+| Config | Paper section | What it produces |
+|---|---|---|
+| `frontier_anchor.yaml` | Frame A anchor (§4.1, Table 1) | GPT-5 (and optional Claude / Gemini) anchor: 3 variants × 3 runs |
+| `ollama_full.yaml` + `ollama_full_pass2.yaml` | Main SLM sweep (§4.2, Table 2) | 16 open-weight models × 30 tasks × 5 variants × 5 runs = 12,000 runs |
+| `nim_slm.yaml` | Cross-backend probe | NVIDIA NIM-hosted open models |
+| `vllm_colab.yaml`, `vllm_rescue.yaml` | Cross-backend probe | vLLM-served open models |
+| `cross_backend_vllm.yaml` | §B (appendix) | Same model on multiple backends (consistency check) |
+| `instance_ablation.yaml` | §5.2 instance variation | Input-instance ablation (i1–i5 on A1/B1/C1/E1) |
+| `e_explicit_ablation.yaml` | §5.2 explicit-submission | E-tier prompt-explicitness ablation |
+| `reasoning_effort_ablation.yaml` | §5.2 reasoning effort | Reasoning-effort ablation on reasoning models |
+| `structured_prompt_ablation.yaml` | §5.2 structured prompt | Structured-prompt scaffolding ablation |
+| `qwen3_nothink_ablation.yaml` | §5.2 reasoning toggle | Qwen3 thinking-vs-no-thinking |
+| `gpt5_de_max_steps.yaml` | §5.2 step-budget ×2 | GPT-5 D/E step-budget ablation |
+| `api_frontier.yaml` | (sanity check) | Cheaper frontier APIs |
+| `smoke.yaml`, `smoke_local.yaml` | (smoke tests) | Short subsets for development |
 
 Each sweep is resume-safe — re-running the same command picks up at the
-first missing result file. A representative end-to-end:
+first missing result file. The full SLM main sweep takes O(days) on a
+single Ollama-capable host; reproducing the headline aggregate-equivalence
+claim from §4.1 requires both `ollama_full*.yaml` and `frontier_anchor.yaml`
+to be run in full. A representative end-to-end:
 
 ```bash
+# Main SLM sweep (12,000 runs)
 python runs/run_sweep.py --config sweep_configs/ollama_full.yaml --eval
+python runs/run_sweep.py --config sweep_configs/ollama_full_pass2.yaml --eval
+
+# Frontier anchor (270 GPT-5 runs)
+python runs/run_sweep.py --config sweep_configs/frontier_anchor.yaml --eval
+
+# Aggregate
 python runs/run_metrics.py results/ --subset paper_baseline
 ```
 
@@ -210,11 +251,12 @@ flip, and how many runs errored vs were unchanged.
 
 ### Reproducibility caveats
 
-LLM provider determinism is best-effort even at `temperature=0`. Reported
+LLM-provider determinism is best-effort even at `temperature=0`. Reported
 numbers depend on:
 
 - Provider SDK versions, model snapshots/digests, and server build (for
-  Ollama / vLLM / NIM). Pin where possible.
+  Ollama / vLLM / NIM). Pin where possible; the paper lists the exact
+  Ollama tags used in May 2026.
 - Whether the `AGENTFLOOR_LLM_JUDGE` env var is set when scoring (see the
   Scoring section above).
 - The bootstrap CI in `harness.metrics` is seeded (`random.Random(42)`),
@@ -222,4 +264,6 @@ numbers depend on:
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Code is released under the MIT License (see [LICENSE](LICENSE)). The
+benchmark tasks, fixtures, and sweep configurations are released under
+CC-BY 4.0 alongside the arXiv preprint.
